@@ -11,9 +11,9 @@ module.exports =
   #     "Access-Control-Allow-Headers": "Content-Type, X-Requested-With, steroidsAppId, steroidsApiKey"
 
   webView:
-    viewsIgnoreStatusBar: false
+    viewsIgnoreStatusBar: true
     enableDoubleTapToFocus: false
-    disableOverscroll: false
+    disableOverscroll: true
     enableViewportScale: false
     enablePopGestureRecognition: true
     allowInlineMediaPlayback: true

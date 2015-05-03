@@ -1,0 +1,45 @@
+body {
+    background-color: #aaaaaa;
+}
+.arrow {
+    background-image: url('../img/play106.svg');
+}
+.action {
+    background-image: url('../img/record14.svg');
+}
+.gameButton {
+    width: 100px;
+    height: 100px;
+    -webkit-background-size: 100px, 100px;
+    background-size: 100px, 100px;
+}
+.arrowUp {
+     -webkit-transform: rotate(-90deg);
+     -moz-transform: rotate(-90deg);
+     -ms-transform: rotate(-90deg);
+     -o-transform: rotate(-90deg);
+     transform: rotate(-90deg);
+ }
+.arrowDown {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+.arrowLeft {
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+.arrowKeys {
+    float: left;
+}
+.buttons {
+    float: right;
+}
+.buttons div {
+    float: right;
+}
