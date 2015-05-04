@@ -8,6 +8,7 @@
 
   <link rel="stylesheet" href="/components/supersonic/css/supersonic.css">
   <link rel="stylesheet" href="/stylesheets/application.css">
+  <link rel="stylesheet" href="img/font-awesome-4.3.0/css/font-awesome.min.css">
   <link rel="import" href="/components/supersonic/components/import.html">
 
   <script src="http://localhost/cordova.js"></script>
@@ -25,24 +26,36 @@
     <table>
       <tr>
         <td></td>
-        <td class="gameButton arrow arrowUp"></td>
+        <td class="gameButton arrow arrowUp" ng-touchstart="buttonDown('arrowUp')" ng-touchend="buttonUp('arrowUp')" ng-class="{'selected':selected==1}">
+          <i class="fa fa-arrow-up"></i>
+        </td>
         <td></td>
       </tr>
       <tr>
-        <td class="gameButton arrow arrowLeft"></td>
+        <td class="gameButton arrow arrowLeft" ng-touchstart="buttonDown('arrowLeft')" ng-touchend="buttonUp('arrowLeft')" ng-class="{'selected':selected==2}">
+          <i class="fa fa-arrow-left"></i>
+        </td>
         <td></td>
-        <td class="gameButton arrow arrowRight"></td>
+        <td class="gameButton arrow arrowRight" ng-touchstart="buttonDown('arrowRight')" ng-touchend="buttonUp('arrowRight')" ng-class="{'selected':selected==3}">
+          <i class="fa fa-arrow-right"></i>
+        </td>
       </tr>
       <tr>
         <td></td>
-        <td class="gameButton arrow arrowDown"></td>
+        <td class="gameButton arrow arrowDown" ng-touchstart="buttonDown('arrowDown')" ng-touchend="buttonUp('arrowDown')" ng-class="{'selected':selected==4}">
+          <i class="fa fa-arrow-down"></i>
+        </td>
         <td></td>
       </tr>
     </table>
   </section>
   <section class="buttons">
-    <div class="gameButton action action1"></div>
-    <div class="gameButton action action2"></div>
+    <div class="gameButton action action1" ng-touchstart="buttonDown('a')" ng-touchend="buttonUp('a')" ng-class="{'selected':selected==5}">
+      <i class="fa fa-circle"></i>
+    </div>
+    <div class="gameButton action action2" ng-touchstart="buttonDown('b')" ng-touchend="buttonUp('b')" ng-class="{'selected':selected==6}">
+      <i class="fa fa-circle"></i>
+    </div>
   </section>
 </div>
 
