@@ -29,8 +29,8 @@ angular.module('SteroidsApplication', [
     .factory('GameService', function($http) {
         var factory = {};
         var playerId = null;
-        var serverIP = '10.0.0.100';
-        var serverPort = '3000';
+        var serverIP = '10.0.0.7';
+        var serverPort = '8001';
         factory.initializePlayer = function() {
             playerId = Math.floor((Math.random() * 99999));
         };
