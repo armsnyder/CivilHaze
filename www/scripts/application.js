@@ -4,10 +4,11 @@ angular.module('SteroidsApplication', [
     .controller('IndexController', function($scope, supersonic, GameService) {
             supersonic.ui.screen.setAllowedRotations(["landscapeLeft", "landscapeRight"]);
             GameService.initializePlayer();
+	    $scope.ipAddress = '';
             $scope.selected = null;
             $scope.buttonDown = function(buttonNum) {
                 supersonic.logger.log('push');
-                GameService.sendButton(buttonNum, true).error(function(data, status, headers, config) {
+                GameService.sendButton(buttonNum, true, $scope.ipAddress).error(function(data, status, headers, config) {
                     supersonic.logger.log('ERROR '+status+' '+data+' '+headers+' '+config);
                 });
                 var num = null;
@@ -20,7 +21,7 @@ angular.module('SteroidsApplication', [
                 $scope.selected = num;
             };
             $scope.buttonUp = function(buttonNum) {
-                GameService.sendButton(buttonNum, false).error(function(data, status, headers, config) {
+                GameService.sendButton(buttonNum, false, $scope.ipAddress).error(function(data, status, headers, config) {
                     supersonic.logger.log('ERROR '+status+' '+data+' '+headers+' '+config);
                 });
                 $scope.selected = null;
@@ -29,14 +30,13 @@ angular.module('SteroidsApplication', [
     .factory('GameService', function($http) {
         var factory = {};
         var playerId = null;
-        var serverIP = '10.105.10.96';
         var serverPort = '8001';
         factory.initializePlayer = function() {
             playerId = Math.floor((Math.random() * 99999));
         };
-        factory.sendButton = function(buttonNum, status) {
+        factory.sendButton = function(buttonNum, status, ipAddress) {
             supersonic.logger.log('sent');
-            return $http.post('http://'+serverIP+':'+serverPort+'/button', {button: buttonNum, status: status, playerId: playerId});
+            return $http.post('http://'+ipAddress+':'+serverPort+'/button', {button: buttonNum, status: status, playerId: playerId});
         };
         return factory;
     })
