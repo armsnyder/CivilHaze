@@ -1,8 +1,8 @@
 <div class="padding" ng-controller="LoginController">
     <div class="vcenter">
         <form>
-            <p><input type="text" placeholder="Game ID" ng-model="serverIP" required/></p>
-            <p><input type="text" placeholder="Your Name" ng-model="playerName" required/></p>
+            <p><input type="text" placeholder="Game ID" ng-model="serverIP" ng-disabled="!loginEnabled" required/></p>
+            <p><input type="text" placeholder="Your Name" ng-model="playerName" ng-disabled="!loginEnabled" required/></p>
             <button ng-click="submit()" class="button button-block button-balanced"
                     ng-disabled="!playerName || !serverIP || !loginEnabled">Play</button>
         </form>

@@ -6,6 +6,8 @@ import random
 import copy
 import Tkinter
 import tkFont
+import util
+import sys
 
 
 def main():
@@ -43,11 +45,11 @@ class LobbyScreen(Screen):
                                 font=self.font_med)
         i = 0
         for player in server.players.values():
-            self.canvas.create_text(self.game.width/2, i*30+140, text=player['name'], font=self.font_sm)
+            self.canvas.create_text(self.game.width/2, i*25+140, text=player['name'], font=self.font_sm)
             i += 1
-        self.canvas.create_rectangle(self.game.width/2-50, i*30+200, self.game.width/2+50, i*30+240,
+        self.canvas.create_rectangle(self.game.width/2-50, i*25+160, self.game.width/2+50, i*25+200,
                                      fill='green', tags='ok_button')
-        self.canvas.create_text(self.game.width/2, i*30+220, text='Ready', font=self.font_sm, tags='ok_button2')
+        self.canvas.create_text(self.game.width/2, i*25+180, text='Ready', font=self.font_sm, tags='ok_button2')
 
     def click(self, event):
         if self.canvas.find_withtag(Tkinter.CURRENT) == self.canvas.find_withtag('ok_button') \
@@ -56,28 +58,45 @@ class LobbyScreen(Screen):
             self.canvas.update_idletasks()
             self.canvas.after(200)
             self.game.load_screen(GameScreen)
-        pass
+
+
+class GameOverScreen(Screen):
+
+    def __init__(self, game):
+        Screen.__init__(self, game)
+        self.id = 'gameover'
+        self.font_big = tkFont.Font(size=36, weight='bold')
+        self.counter = 0
+
+    def main_loop(self):
+        self.canvas.delete(Tkinter.ALL)
+        self.canvas.create_text(self.game.width/2, self.game.height/2, text=self.game.caught_player+' was caught',
+                                font=self.font_big)
+        self.counter += 1
+        if self.counter > 100:
+            self.game.caught_player = None
+            self.game.load_screen(GameScreen)
 
 
 class GameScreen(Screen):
 
     def __init__(self, game):
         Screen.__init__(self, game)
-        self.cell_width = 50
+        self.cell_width = self.game.height/24
         self.board = Board(self.game.width/self.cell_width, self.game.height/self.cell_width, self.cell_width)
         self.key = self.board.board[self.board.key_pos[0]][self.board.key_pos[1]]
+        self.guards = []
+        for player in server.players.values():
+            player['player'] = Player(util.random_color(), self.board)
+        for _ in range(16):
+            self.guards.append(Guard(self.board, self.game))
 
     def main_loop(self):
         while not server.control_queue.empty():
             message = server.control_queue.get()
             print message
-            if message['playerId'] not in server.players:
-                server.players[message['playerId']] = Player(message['playerId'],
-                                                           (random.randint(50, 200),
-                                                            random.randint(50, 200),
-                                                            random.randint(50, 200)),
-                                                           self.board)
-            server.players[message['playerId']].keys[message['button']] = message['status']
+            if message['playerId'] in server.players:
+                server.players[message['playerId']]['player'].keys[message['button']] = message['status']
 
         self.canvas.delete(Tkinter.ALL)
 
@@ -97,35 +116,49 @@ class GameScreen(Screen):
                                                  (i+1)*self.cell_width, (j+1)*self.cell_width, fill=_color)
         self.canvas.create_image(self.board.key_pos[0]*self.cell_width, self.board.key_pos[1]*self.cell_width,
                                  image=self.key.graphic)
-        players_in_game = [p for p in server.players.values() if not p.free]
+        players_in_game = [p for p in server.players.values() if not p['player'].free]
         if not players_in_game and server.players:
             self.board.reset()
             for player in server.players.values():
-                player.free = False
-                player.position = {
-                    'x': player.cell['x']*self.board.cell_width+self.board.cell_width/2,
-                    'y': player.cell['y']*self.board.cell_width+self.board.cell_width/2
+                player['player'].free = False
+                player['player'].position = {
+                    'x': player['player'].cell['x']*self.board.cell_width+self.board.cell_width/2,
+                    'y': player['player'].cell['y']*self.board.cell_width+self.board.cell_width/2
                 }
         for player in players_in_game:
-            if isinstance(player, Player):
-                player.update_position()
-                self.canvas.create_oval(player.position['x']-player.width/2, player.position['y']-player.width/2,
-                                        player.position['x']+player.width/2, player.position['y']+player.width/2,
-                                        fill='black')
+            if isinstance(player['player'], Player):
+                player['player'].update_position()
+                self.canvas.create_oval(player['player'].position['x']-player['player'].width/2, player['player'].position['y']-player['player'].width/2,
+                                        player['player'].position['x']+player['player'].width/2, player['player'].position['y']+player['player'].width/2,
+                                        fill=player['player'].color)
+                self.canvas.create_text(player['player'].position['x'], player['player'].position['y']-player['player'].height, text=player['name'])
                 # pygame.draw.circle(self.screen, player.color, (player.position['x'], player.position['y']),
                 #                    player.width/2, 0)
                 # self.screen.blit(player.graphic, (player.position['x'], player.position['y']))
             else:
                 print 'ERROR: ', type(player)
+        for guard in self.guards:
+            guard.update_position()
+            if self.game.caught_player:
+                self.game.load_screen(GameOverScreen)
+                break
+            self.canvas.create_oval(guard.position['x']-guard.width/2, guard.position['y']-guard.width/2,
+                                    guard.position['x']+guard.width/2, guard.position['y']+guard.width/2,
+                                    fill=guard.color, outline='red')
 
 
 class Game:
 
     def __init__(self, width=2000, height=1000):
         server.start_server(self)
-        self.width = width
-        self.height = height
         self.root = Tkinter.Tk()
+        self.width = self.root.winfo_screenwidth()
+        self.height = self.root.winfo_screenheight()-20
+        self.root.overrideredirect(1)
+        self.root.geometry("%dx%d+0+20" % (self.width, self.height))
+        self.root.focus_set()
+        self.caught_player = None
+
         self.frame = Tkinter.Frame()
         self.frame.pack()
         self.screen = Screen(self)
@@ -145,11 +178,119 @@ class Game:
         self.root.after(1000/self.fps, self.main_loop)
 
 
+class Guard:
+    def __init__(self, board=None, game=None, _color='black'):
+        self.board = board
+        self.game = game
+        self.graphic = None
+        self.height = board.cell_width*2/3
+        self.width = board.cell_width*2/3
+        self.cell = {
+            'x': 0,
+            'y': 0
+        }
+        self.init_position()
+        self.position = {
+            'x': self.cell['x']*self.board.cell_width+self.board.cell_width/2,
+            'y': self.cell['y']*self.board.cell_width+self.board.cell_width/2
+        }
+        self.max_speed = 5
+        self.color = _color
+        self.direction = random.choice(['up', 'down', 'left', 'right'])
+        self.occupied_cells = []
+        self.last_choice_at = ()
+
+    def init_position(self):
+        count = 0
+        max_count = 100
+        zone = 3
+        while count < max_count:
+            cell = {
+                'x': random.randint(1, self.board.width-2),
+                'y': random.randint(1, self.board.height-2)
+            }
+            if self.board.board[cell['x']][cell['y']]:
+                continue
+            ok = True
+            for i in range(cell['x']-zone, cell['x']+zone):
+                for j in range(cell['y']-zone, cell['y']+zone):
+                    try:
+                        c_cell = self.board.board[i][j]
+                    except IndexError:
+                        continue
+                    if isinstance(c_cell, tuple):
+                        c_cell = self.board.board[c_cell[0]][c_cell[1]]
+                    if isinstance(c_cell, buildings.Prison):
+                        ok = False
+                        break
+                if not ok:
+                    break
+            if ok:
+                self.cell = cell
+                break
+            count += 1
+
+    def update_position(self):
+        corners = [
+            (self.position['x']-self.width/2+1, self.position['y']-self.height/2+1),
+            (self.position['x']+self.width/2-1, self.position['y']-self.height/2+1),
+            (self.position['x']+self.width/2-1, self.position['y']+self.height/2-1),
+            (self.position['x']-self.width/2+1, self.position['y']+self.height/2-1)]
+        self.occupied_cells = set([(x/self.board.cell_width, y/self.board.cell_width) for x, y in corners])
+        for player in server.players.values():
+            for cell in player['player'].occupied_cells:
+                for t_cell in self.occupied_cells:
+                    if cell == t_cell:
+                        self.game.caught_player = player['name']
+        # if len(self.occupied_cells) == 1:
+        self.change_direction()
+        if self.direction == 'up':
+            self.position['y'] -= self.max_speed
+        elif self.direction == 'down':
+            self.position['y'] += self.max_speed
+        elif self.direction == 'left':
+            self.position['x'] -= self.max_speed
+        elif self.direction == 'right':
+            self.position['x'] += self.max_speed
+
+    def change_direction(self):
+        for cell in self.occupied_cells:
+            change = False
+            try:
+                if self.direction == 'up':
+                    if self.board.board[cell[0]][cell[1]+1]:
+                        change = True
+                elif self.direction == 'down':
+                    if self.board.board[cell[0]][cell[1]-1]:
+                        change = True
+                elif self.direction == 'left':
+                    if self.board.board[cell[0]-1][cell[1]]:
+                        change = True
+                elif self.direction == 'right':
+                    if self.board.board[cell[0]+1][cell[1]]:
+                        change = True
+            except IndexError:
+                change = True
+            if change:
+                choices = ['up', 'down', 'left', 'right']
+                choices.remove(self.direction)
+                if self.direction == 'up':
+                    choices.remove('down')
+                elif self.direction == 'down':
+                    choices.remove('up')
+                elif self.direction == 'left':
+                    choices.remove('right')
+                elif self.direction == 'right':
+                    choices.remove('left')
+                self.direction = random.choice(choices)
+        self.last_choice_at = self.occupied_cells
+
+
+
 class Player:
-    def __init__(self, player_id=None, _color=(250, 250, 0), board=None):
+    def __init__(self, _color='orange', board=None):
         self.board = board
         self.graphic = None
-        self.player_id = player_id
         self.keys = {
             'arrowUp': False,
             'arrowLeft': False,
@@ -159,6 +300,7 @@ class Player:
         self.height = board.cell_width*2/3
         self.width = board.cell_width*2/3
         self.free = False
+        self.occupied_cells = []
         self.cell = {
             'x': 0,
             'y': 0
@@ -206,9 +348,9 @@ class Player:
             (new_position['x']+self.width/2-_buffer, new_position['y']-self.height/2+_buffer),
             (new_position['x']+self.width/2-_buffer, new_position['y']+self.height/2-_buffer),
             (new_position['x']-self.width/2+_buffer, new_position['y']+self.height/2-_buffer)]
-        occupied_cells = set([(x/self.board.cell_width, y/self.board.cell_width) for x, y in corners])
+        self.occupied_cells = set([(x/self.board.cell_width, y/self.board.cell_width) for x, y in corners])
         move = True
-        for cell_x, cell_y in occupied_cells:
+        for cell_x, cell_y in self.occupied_cells:
             if cell_x < 0 or cell_y < 0:
                 self.free = True
                 break
@@ -226,7 +368,7 @@ class Player:
                 if isinstance(cell, buildings.Building) and cell.blocking:
                     move = False
                     break
-        if move and self.board.key_pos in occupied_cells:
+        if move and self.board.key_pos in self.occupied_cells:
             self.board.open_gate()
         return move
 
