@@ -31,12 +31,9 @@ class Game:
         self.screen = pygame.display.set_mode((0, 0))
         modes = pygame.display.list_modes(16)
         # display = modes[0]
-        display = (1200, 1000)
-        if modes:
-            self.width = display[0]/self.cell_width*self.cell_width
-            self.height = (display[1]-44)/self.cell_width*self.cell_width
-        else:
-            print 'Display failure'
+        display = (1680, 1050)
+        self.width = display[0]/self.cell_width*self.cell_width
+        self.height = (display[1]-44)/self.cell_width*self.cell_width
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption('Interactive Art')
         self.fps = 30
