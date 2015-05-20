@@ -1,13 +1,13 @@
 angular
     .module('common')
     .controller('GamepadController', function($scope, supersonic, $http) {
-        supersonic.ui.screen.setAllowedRotations(["landscapeLeft", "landscapeRight"]);
-        GameService.initializePlayer();
-        $scope.ipAddress = '';
+        $scope.serverIP = window.localStorage.getItem('serverIP');
+        $scope.serverPort = window.localStorage.getItem('serverPort');
+        $scope.playerName = window.localStorage.getItem('playerName');
         $scope.selected = null;
         $scope.buttonDown = function(buttonNum) {
             supersonic.logger.log('push');
-            GameService.sendButton(buttonNum, true, $scope.ipAddress).error(function(data, status, headers, config) {
+            sendButton(buttonNum, true).error(function(data, status, headers, config) {
                 supersonic.logger.log('ERROR '+status+' '+data+' '+headers+' '+config);
             });
             var num = null;
@@ -20,22 +20,12 @@ angular
             $scope.selected = num;
         };
         $scope.buttonUp = function(buttonNum) {
-            GameService.sendButton(buttonNum, false, $scope.ipAddress).error(function(data, status, headers, config) {
+            sendButton(buttonNum, false).error(function(data, status, headers, config) {
                 supersonic.logger.log('ERROR '+status+' '+data+' '+headers+' '+config);
             });
             $scope.selected = null;
         };
-    })
-    .factory('GameService', function($http) {
-        var factory = {};
-        var playerId = null;
-        var serverPort = '8001';
-        factory.initializePlayer = function() {
-            playerId = Math.floor((Math.random() * 99999));
-        };
-        factory.sendButton = function(buttonNum, status, ipAddress) {
-            supersonic.logger.log('sent');
-            return $http.post('http://'+ipAddress+':'+serverPort+'/button', {button: buttonNum, status: status, playerId: playerId});
-        };
-        return factory;
+        function sendButton(buttonNum, status) {
+            return $http.post('http://'+$scope.serverIP+':'+$scope.serverPort+'/button', {button: buttonNum, status: status});
+        }
     });
