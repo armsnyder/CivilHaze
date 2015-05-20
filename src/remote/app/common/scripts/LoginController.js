@@ -1,8 +1,8 @@
 angular
     .module('common')
     .controller('LoginController', function($scope, supersonic, $http) {
-        $scope.playerName = 'Adas';
-        $scope.serverIP = '10.0.0.100';
+        $scope.playerName = '';
+        $scope.serverIP = '';
         $scope.status = '';
         $scope.loginEnabled = true;
 
