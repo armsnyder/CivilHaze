@@ -65,3 +65,12 @@ body {
 .selected {
   color: #00B5FF;
 }
+
+.status {
+  text-align: center;
+}
+
+div.vcenter {
+  margin-top: 10%;
+  padding: 3em;
+}

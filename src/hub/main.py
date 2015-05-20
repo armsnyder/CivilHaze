@@ -5,12 +5,11 @@ import buildings
 import random
 import copy
 import Tkinter
+import tkFont
 
 
 def main():
-    server.start_server()
     Game()
-    server.stop_server()
 
 
 class Screen(Tkinter.Frame):
@@ -20,17 +19,43 @@ class Screen(Tkinter.Frame):
         self.game = game
         self.canvas = Tkinter.Canvas(self, height=game.height, width=game.width)
         self.canvas.pack()
+        self.id = None
 
     def main_loop(self):
-        self.canvas.delete(Tkinter.ALL)
+        pass
 
 
 class LobbyScreen(Screen):
 
     def __init__(self, game):
         Screen.__init__(self, game)
+        self.id = 'lobby'
+        self.canvas.bind("<Button-1>", self.click)
+        self.font_big = tkFont.Font(size=36, weight='bold')
+        self.font_med = tkFont.Font(size=24, underline=1)
+        self.font_sm = tkFont.Font(size=18)
 
     def main_loop(self):
+        self.canvas.delete(Tkinter.ALL)
+        self.canvas.create_text(self.game.width/2, 50, text='Game ID: '+server.serverIP,
+                                font=self.font_big)
+        self.canvas.create_text(self.game.width/2, 100, text='Connected Players',
+                                font=self.font_med)
+        i = 0
+        for player in server.players.values():
+            self.canvas.create_text(self.game.width/2, i*30+140, text=player['name'], font=self.font_sm)
+            i += 1
+        self.canvas.create_rectangle(self.game.width/2-50, i*30+200, self.game.width/2+50, i*30+240,
+                                     fill='green', tags='ok_button')
+        self.canvas.create_text(self.game.width/2, i*30+220, text='Ready', font=self.font_sm, tags='ok_button2')
+
+    def click(self, event):
+        if self.canvas.find_withtag(Tkinter.CURRENT) == self.canvas.find_withtag('ok_button') \
+                or self.canvas.find_withtag(Tkinter.CURRENT) == self.canvas.find_withtag('ok_button2'):
+            self.canvas.itemconfig(Tkinter.CURRENT, fill="blue")
+            self.canvas.update_idletasks()
+            self.canvas.after(200)
+            self.game.load_screen(GameScreen)
         pass
 
 
@@ -38,18 +63,21 @@ class GameScreen(Screen):
 
     def __init__(self, game):
         Screen.__init__(self, game)
+        self.cell_width = 50
+        self.board = Board(self.game.width/self.cell_width, self.game.height/self.cell_width, self.cell_width)
+        self.key = self.board.board[self.board.key_pos[0]][self.board.key_pos[1]]
 
     def main_loop(self):
         while not server.control_queue.empty():
             message = server.control_queue.get()
             print message
-            if message['playerId'] not in self.players:
-                self.players[message['playerId']] = Player(message['playerId'],
+            if message['playerId'] not in server.players:
+                server.players[message['playerId']] = Player(message['playerId'],
                                                            (random.randint(50, 200),
                                                             random.randint(50, 200),
                                                             random.randint(50, 200)),
                                                            self.board)
-            self.players[message['playerId']].keys[message['button']] = message['status']
+            server.players[message['playerId']].keys[message['button']] = message['status']
 
         self.canvas.delete(Tkinter.ALL)
 
@@ -69,10 +97,10 @@ class GameScreen(Screen):
                                                  (i+1)*self.cell_width, (j+1)*self.cell_width, fill=_color)
         self.canvas.create_image(self.board.key_pos[0]*self.cell_width, self.board.key_pos[1]*self.cell_width,
                                  image=self.key.graphic)
-        players_in_game = [p for p in self.players.values() if not p.free]
-        if not players_in_game and self.players:
+        players_in_game = [p for p in server.players.values() if not p.free]
+        if not players_in_game and server.players:
             self.board.reset()
-            for player in self.players.values():
+            for player in server.players.values():
                 player.free = False
                 player.position = {
                     'x': player.cell['x']*self.board.cell_width+self.board.cell_width/2,
@@ -94,23 +122,23 @@ class GameScreen(Screen):
 class Game:
 
     def __init__(self, width=2000, height=1000):
+        server.start_server(self)
         self.width = width
         self.height = height
         self.root = Tkinter.Tk()
         self.frame = Tkinter.Frame()
         self.frame.pack()
-        self.screen = None
-        self.cell_width = 50
-        self.players = {}
-        self.board = Board(self.width/self.cell_width, self.height/self.cell_width, self.cell_width)
-        self.key = self.board.board[self.board.key_pos[0]][self.board.key_pos[1]]
+        self.screen = Screen(self)
         self.fps = 30
-        self.load_screen()
+        self.load_screen(LobbyScreen)
         self.main_loop()
         self.root.mainloop()
+        server.stop_server()
 
     def load_screen(self, screen):
+        self.screen.destroy()
         self.screen = screen(self)
+        self.screen.pack()
 
     def main_loop(self):
         self.screen.main_loop()

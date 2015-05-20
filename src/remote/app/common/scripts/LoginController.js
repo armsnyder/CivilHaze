@@ -1,8 +1,8 @@
 angular
     .module('common')
     .controller('LoginController', function($scope, supersonic, $http) {
-        $scope.playerName = '';
-        $scope.serverIP = '';
+        $scope.playerName = 'Adas';
+        $scope.serverIP = '10.0.0.100';
         $scope.status = '';
         $scope.loginEnabled = true;
 
@@ -12,7 +12,7 @@ angular
             supersonic.logger.log('jasdhsajkd');
             $scope.loginEnabled = false;
             $scope.status = 'Connecting';
-            $http.post('http://' + $scope.serverIP + ':' + serverPort + '/ping', {playerName: $scope.playerName})
+            $http.post('http://' + $scope.serverIP + ':' + serverPort + '/ask_ready', {playerName: $scope.playerName})
                 .success(function (data, status, headers, config) {
                     $scope.status = 'Connected. Waiting for other players.';
                     ping();
@@ -26,12 +26,14 @@ angular
 
         function ping() {
             supersonic.logger.log('abc');
-            $http.post('http://' + $scope.serverIP + ':' + serverPort + '/ping', {}, timeout=1000)
+            $http.post('http://' + $scope.serverIP + ':' + serverPort + '/ask_ready', {})
                 .success(function (data, status, headers, config) {
+                    supersonic.logger.log(data);
                     if ('ready' in data && data['ready']) {
                         saveVariables();
                         supersonic.ui.initialView.dismiss();
                     } else {
+                        supersonic.logger.log('wow');
                         setTimeout(function() {
                             supersonic.logger.log('pinging');
                             ping();
