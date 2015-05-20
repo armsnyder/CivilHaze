@@ -1,9 +1,10 @@
 <div class="padding">
     <div class="loginInput">
-        <input type="text" placeholder="Game ID" ng-model="serverIP"/>
+        <input type="text" placeholder="Game ID" ng-model="serverIP" required/>
     </div>
     <div class="loginInput">
-        <input type="text" placeholder="Your Name" ng-model="playerName"/>
+        <input type="text" placeholder="Your Name" ng-model="playerName" required/>
     </div>
-    <button ng-click="submit()" class="button button-block button-balanced">Play</button>
+    <button ng-click="submit()" class="button button-block button-balanced"
+            ng-disabled="signInForm.$invalid || !loginEnabled">Play</button>
 </div>

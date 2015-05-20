@@ -1,7 +1,7 @@
 .DS_Store
-/src/remote/dist/
-node_modules/
-bower_components/
-.sass-cache/
-logs/
 .idea/
+/src/remote/dist/
+/src/remote/.sass-cache/
+/src/remote/logs/
+/src/remote/bower_components/
+/src/remote/node_modules/
