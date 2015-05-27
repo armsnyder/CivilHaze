@@ -22,18 +22,15 @@ module.exports =
 #  ]
 
   rootView:
+    id: "gamepad"
     location: "common#gamepad"
 
-  preloads: []
-#    {
-#      id: "learn-more"
-#      location: "example#learn-more"
-#    }
-#    {
-#      id: "using-the-scanner"
-#      location: "example#using-the-scanner"
-#    }
-#  ]
+  preloads: [
+    {
+      id: "voting"
+      location: "common#voting"
+    }
+  ]
 
   # drawers:
   #   left:

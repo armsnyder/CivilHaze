@@ -1,13 +1,21 @@
+__author__ = 'Adam Snyder'
+
 import random
+import game_objects
+import Tkinter
 
 
-class Building:
+class Building(game_objects.GameObject):
     height = 0
     width = 0
 
-    def __init__(self):
+    def __init__(self, board):
+        game_objects.GameObject.__init__(self, board)
         self.blocking = True
-        pass
+        self.cell = {
+            'x': None,
+            'y': None
+        }
 
     def place(self, board, x, y):
         if x+self.width > board.width or y+self.height > board.height:
@@ -22,6 +30,9 @@ class Building:
                     pass
 
         board.board[x][y] = self
+        self.cell['x'] = x
+        self.cell['y'] = y
+
         for i in range(x, x+self.width):
             for j in range(y, y+self.height):
                 if (i, j) != (x, y):
@@ -36,8 +47,9 @@ class Prison(Building):
     width = 5
     color = '#000'
 
-    def __init__(self):
-        Building.__init__(self)
+    def __init__(self, board):
+        Building.__init__(self, board)
+        self.load_image('img/prison.gif')
 
 
 class House(Building):
@@ -45,24 +57,18 @@ class House(Building):
     width = 1
     color = 'green'
 
-    def __init__(self):
-        Building.__init__(self)
+    def __init__(self, board):
+        Building.__init__(self, board)
+        self.load_image('img/house'+random.choice(['1', '2'])+'.gif')
 
 
 class HouseMediumVertical(House):
     height = 2
     width = 1
 
-    def __init__(self):
-        House.__init__(self)
-
-
-class HouseMediumHorizontal(HouseMediumVertical):
-    height = 1
-    width = 2
-
-    def __init__(self):
-        HouseMediumVertical.__init__(self)
+    def __init__(self, board):
+        House.__init__(self, board)
+        self.load_image('img/house3.gif')
 
 
 class Church(Building):
@@ -70,8 +76,9 @@ class Church(Building):
     width = 3
     color = '#AAA'
 
-    def __init__(self):
-        Building.__init__(self)
+    def __init__(self, board):
+        Building.__init__(self, board)
+        self.load_image('img/church.gif')
 
 
 class MeetingHouse(Building):
@@ -79,8 +86,9 @@ class MeetingHouse(Building):
     width = 4
     color = 'blue'
 
-    def __init__(self):
-        Building.__init__(self)
+    def __init__(self, board):
+        Building.__init__(self, board)
+        self.load_image('img/meetinghouse.gif')
 
 
 class Fence(Building):
@@ -88,8 +96,8 @@ class Fence(Building):
     width = 1
     color = '#000'
 
-    def __init__(self):
-        Building.__init__(self)
+    def __init__(self, board):
+        Building.__init__(self, board)
 
     def place(self, board, x=None, y=None):
         fence_blocks = []

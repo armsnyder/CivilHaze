@@ -9,7 +9,6 @@ angular
         var serverPort = '8001';
 
         $scope.submit = function() {
-            supersonic.logger.log('jasdhsajkd');
             $scope.loginEnabled = false;
             $scope.status = 'Connecting';
             $http.post('http://' + $scope.serverIP + ':' + serverPort + '/ask_ready', {playerName: $scope.playerName})
@@ -25,17 +24,13 @@ angular
         };
 
         function ping() {
-            supersonic.logger.log('abc');
             $http.post('http://' + $scope.serverIP + ':' + serverPort + '/ask_ready', {})
                 .success(function (data, status, headers, config) {
-                    supersonic.logger.log(data);
                     if ('ready' in data && data['ready']) {
                         saveVariables();
                         supersonic.ui.initialView.dismiss();
                     } else {
-                        supersonic.logger.log('wow');
                         setTimeout(function() {
-                            supersonic.logger.log('pinging');
                             ping();
                         }, 1000);
                     }

@@ -9,6 +9,7 @@ import json
 import Queue
 import urlparse
 import time
+import screens
 
 
 httpd = None
@@ -37,17 +38,59 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.end_headers()
-            elif parsed_path.path == '/ask_ready':
 
+            elif parsed_path.path == '/ask_ready':
                 self.send_response(200)
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
-                if game.screen.id == 'lobby':
-                    self.wfile.write('{"ready": false}')
-                else:
-                    pass
+                if game.screen.id == 'game':
                     self.wfile.write('{"ready": true}')
+                else:
+                    self.wfile.write('{"ready": false}')
+
+            elif parsed_path.path == '/gamePing':
+                print(game.screen.id)
+                self.send_response(200)
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                if game.screen.id == 'gameover':
+                    response = {
+                        'ready': True,
+                        'players': [{
+                            'name': players[player]['player'].player_name,
+                            'id': player
+                        } for player in players.keys() if player != self.address_string()]
+                    }
+                    print response
+                    self.wfile.write(json.dumps(response))
+                else:
+                    print 'not ready'
+                    self.wfile.write('{"ready": false}')
+                    
+            elif parsed_path.path == '/vote':
+                self.send_response(200)
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                players[self.address_string()]['vote'] = post_body['vote']
+                voted_players = []
+                ready = True
+                print players
+                for player in players.values():
+                    if not player['vote']:
+                        ready = False
+                        print player['vote'], 'not ready'
+                        break
+                    voted_players.append(player['vote'])
+                if ready:
+                    print 'ready!'
+                    voted_players = set(voted_players)
+                    for player in voted_players:
+                        players[player]['exiled'] = True
+                        print 'loading screen'
+                    game.load_screen(screens.GameScreen)
 
         else:
             print ctype
@@ -55,7 +98,6 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.connection.shutdown(1)
 
     def do_OPTIONS(self):
-        print 'options'
         self.send_response(200, 'ok')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, PUT, POST, OPTIONS')
@@ -71,7 +113,10 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             if 'playerName' in post_body:
                 players[player_id] = {
                     'last_ping': time.time(),
-                    'name': post_body['playerName']
+                    'name': post_body['playerName'],
+                    'vote': None,
+                    'player': None,
+                    'exiled': False
                 }
             else:
                 self.send_error(404, 'Bad Request')

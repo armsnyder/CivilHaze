@@ -1,3 +1,5 @@
+__author__ = 'Adam Snyder'
+
 import unittest
 import main
 import buildings

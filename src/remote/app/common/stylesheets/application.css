@@ -74,3 +74,34 @@ div.vcenter {
   margin-top: 10%;
   padding: 3em;
 }
+
+.voting {
+  margin: 1em;
+}
+ul {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  list-style: none;
+  overflow: auto;
+}
+hr {
+  clear: both;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #eee;
+}
+li {
+  background-color: #bbbbbb;
+  margin: 0;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  text-align: center;
+}
+
+.nameSelect {
+  background-color: #e42012;
+}
+.nameDeselect {
+  background-color: #bbbbbb;
+}
