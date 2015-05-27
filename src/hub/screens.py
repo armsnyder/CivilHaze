@@ -58,6 +58,7 @@ class GameOverScreen(Screen):
         Screen.__init__(self, game)
         self.id = 'gameover'
         self.font_big = tkFont.Font(size=36, weight='bold')
+        self.font_med = tkFont.Font(size=24)
         self.counter = 0
 
     def main_loop(self):
@@ -68,7 +69,7 @@ class GameOverScreen(Screen):
 Okay, I will give you one more chance.
 But to increase your chance to escape next time,
 You should decide who should be left here.
-Hmm...""")
+Hmm...""", font=self.font_med)
 
 class GameScreen(Screen):
 
