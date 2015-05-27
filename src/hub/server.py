@@ -79,7 +79,7 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 ready = True
                 print players
                 for player in players.values():
-                    if not isinstance(player['vote'], dict):
+                    if player['vote'] is None:
                         ready = False
                         print player['vote'], 'not ready'
                         break

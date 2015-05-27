@@ -155,10 +155,10 @@ class GameScreen(Screen):
 
         self.canvas.delete(Tkinter.ALL)
 
-        # for i in range((self.board.width+1)/2+1):
-        #     for j in range((self.board.height+1)/2+1):
-        #         self.canvas.create_image(i*self.cell_width*2, j*self.cell_width*2, image=self.background_image,
-        #                                  anchor=Tkinter.NW)
+        for i in range((self.board.width+1)/2+1):
+            for j in range((self.board.height+1)/2+1):
+                self.canvas.create_image(i*self.cell_width*2, j*self.cell_width*2, image=self.background_image,
+                                         anchor=Tkinter.NW)
 
         for i in range(self.board.width):
             for j in range(self.board.height):

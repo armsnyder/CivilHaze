@@ -31,7 +31,9 @@ class GameObject:
 
     def load_image(self, filename):
         image = Tkinter.PhotoImage(file=filename)
-        ratio = int(round(float(self.board.cell_width)*self.height/image.height()))
+        ratio = abs(int(round(float(self.board.cell_width)*self.height/image.height())))
+        if ratio < 1:
+            ratio = 1
         scaled_image = image.zoom(ratio, ratio)
         self.graphic = scaled_image
 

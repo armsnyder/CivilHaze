@@ -22,7 +22,11 @@ angular
             if($scope.votingEnabled) {
                 $scope.status = 'Casting your vote...';
                 $scope.votingEnabled = false;
-                $http.post('http://' + $scope.serverIP + ':' + $scope.serverPort + '/vote', {vote: $scope.selection})
+                var vote = [];
+                for(var i in $scope.selection.length) {
+                    vote.push(i);
+                }
+                $http.post('http://' + $scope.serverIP + ':' + $scope.serverPort + '/vote', {vote: vote})
                     .success(function (data) {
                         $scope.status = 'Waiting for other players...';
                         ping();
