@@ -17,6 +17,7 @@ control_queue = Queue.Queue()
 players = {}
 game = None
 serverIP = ''
+move_on = False
 
 
 class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
@@ -83,7 +84,7 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                         ready = False
                         print player['vote'], 'not ready'
                         break
-                    voted_players.append(player['vote'])
+                    voted_players.extend(player['vote'])
                 if ready:
                     print 'ready!'
                     voted_players = set(voted_players)

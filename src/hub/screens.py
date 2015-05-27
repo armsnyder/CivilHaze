@@ -62,14 +62,17 @@ class GameOverScreen(Screen):
         self.counter = 0
 
     def main_loop(self):
-        self.canvas.delete(Tkinter.ALL)
-        self.canvas.create_text(self.game.width/2, self.game.height/3, text=self.game.caught_player+' was caught!',
-                                font=self.font_big)
-        self.canvas.create_text(self.game.width/2, self.game.height*2/3, text="""How could you fail! I believed in you!!
+        try:
+            self.canvas.delete(Tkinter.ALL)
+            self.canvas.create_text(self.game.width/2, self.game.height/3, text=self.game.caught_player+' was caught!',
+                                    font=self.font_big)
+            self.canvas.create_text(self.game.width/2, self.game.height*2/3, text="""How could you fail! I believed in you!!
 Okay, I will give you one more chance.
 But to increase your chance to escape next time,
 You should decide who should be left here.
 Hmm...""", font=self.font_med)
+        except Exception:
+            pass
 
 class GameScreen(Screen):
 
