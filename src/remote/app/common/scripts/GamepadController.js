@@ -2,7 +2,6 @@ angular
     .module('common')
     .controller('GamepadController', function($scope, supersonic, $http) {
         $scope.serverIP = window.localStorage.getItem('serverIP');
-        $scope.serverPort = window.localStorage.getItem('serverPort');
         $scope.playerName = window.localStorage.getItem('playerName');
         $scope.selected = null;
         $scope.buttonDown = function(buttonNum) {
@@ -25,14 +24,17 @@ angular
             $scope.selected = null;
         };
         function sendButton(buttonNum, status) {
-            return $http.post('http://'+$scope.serverIP+':'+$scope.serverPort+'/button', {button: buttonNum, status: status});
+            return $http.get($scope.serverIP+'/button?' + JSON.stringify({button: buttonNum, status: status}));
         }
         function ping() {
-            $http.post('http://' + $scope.serverIP + ':' + $scope.serverPort + '/gamePing', {})
+            window.localStorage.removeItem('players');
+            $http.get($scope.serverIP + '/gamePing')
                 .success(function (data, status, headers, config) {
                     if ('ready' in data && 'players' in data && data['ready']) {
                         window.localStorage.setItem('players', JSON.stringify(data['players']));
-                        supersonic.ui.layers.replace('voting');
+                        window.setTimeout(function() {
+                            supersonic.ui.layers.replace('voting');
+                        }, 2000);
                     } else {
                         setTimeout(ping, 1000);
                     }

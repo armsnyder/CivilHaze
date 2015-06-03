@@ -11,7 +11,7 @@
     {
         protected var _callback:Function;
 
-        public function EncapsulatedURLLoader(url:String, variables:String='', callback:Function=null)
+        public function EncapsulatedURLLoader(url:String, callback:Function=null)
         {
             _callback = callback;
 			var header:URLRequestHeader = new URLRequestHeader("pragma", "no-cache");
@@ -43,29 +43,29 @@
 			if (_callback != null) {
 				_callback.call(null, loader.data);
 			}
-            trace("completeHandler: " + loader.data);
+            //trace("completeHandler: " + loader.data);
 			//this.parent.removeChild(this);
         }
 
         private function openHandler(event:Event):void {
-            trace("openHandler: " + event);
+            //trace("openHandler: " + event);
         }
 
         private function progressHandler(event:ProgressEvent):void {
-            trace("progressHandler loaded:" + event.bytesLoaded + " total: " + event.bytesTotal);
+            //trace("progressHandler loaded:" + event.bytesLoaded + " total: " + event.bytesTotal);
         }
 
         private function securityErrorHandler(event:SecurityErrorEvent):void {
-            trace("securityErrorHandler: " + event);
+            //trace("securityErrorHandler: " + event);
 			//this.parent.removeChild(this);
         }
 
         private function httpStatusHandler(event:HTTPStatusEvent):void {
-            trace("httpStatusHandler: " + event);
+            //trace("httpStatusHandler: " + event);
         }
 
         private function ioErrorHandler(event:IOErrorEvent):void {
-            trace("ioErrorHandler: " + event);
+            //trace("ioErrorHandler: " + event);
 			//this.parent.removeChild(this);
         }
     }
