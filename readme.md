@@ -1,8 +1,11 @@
 # Come Again
-Come Again is a game that follows a group of prisoners as they perform a series of reckless prison breaks. Initially without any regard for one another, their own abilities or past lives, they must find a way to work together and escape. Along the way, sacrifices will need to be made. What will happen to those who are left behind? What will happen to those who find freedom?
+Come Again is a game that follows a group of prisoners as they perform a series of reckless prison breaks. Initially 
+without any regard for one another, their own abilities or past lives, they must find a way to work together and 
+escape. Along the way, sacrifices will need to be made. What will happen to those who are left behind? What will happen 
+to those who find freedom?
 
 ### Starting the Game
-1. Download the files in the [dist/](https://github.com/friendly-flame/iaInterface/tree/master/dist) directory.
+1. [Download the game](https://github.com/friendly-flame/ComeAgain/releases/latest).
 2. Double-click the “start_server” application. No windows will open, but an icon will appear in your dock.
 3. Open the qr.png file and scan it using the AppGyver scanner (available for iOS and Android).
 4. Open the iaHub2.fla file and run the movie with command+Enter.
