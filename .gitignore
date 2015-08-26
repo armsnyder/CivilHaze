@@ -1,7 +1,8 @@
 .DS_Store
 .idea/
-/src/remote/dist/
-/src/remote/.sass-cache/
-/src/remote/logs/
-/src/remote/bower_components/
-/src/remote/node_modules/
+spring/src/remote/dist/
+spring/src/remote/.sass-cache/
+spring/src/remote/logs/
+spring/src/remote/bower_components/
+spring/src/remote/node_modules/
+target/
