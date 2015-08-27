@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dialogue>
+    <!-- SCENE 1 - OPENING DIALOGUE -->
+    <group id="1-1">
+        <line emotion="happy">Hey kids!</line>
+        <line>You wouldn't happen to know where we are</line>
+        <line continued="true" speed="slow">...</line>
+        <line continued="true" speed="normal" emotion="confused">would you?<pause/></line>
+        <line emotion="happy">Bahaha I'm messing with ya! We're in prison of course!</line>
+        <line emotion="smug">Yep, I've been living behind bars for, what, 50 years now?</line>
+        <line emotion="happy">That's my best guess anyway! I ran out of space on my cell walls to mark the days looooong ago, friends!</line>
+        <line emotion="smug">Not that I'm complaining. It's cozy down here. Don't you agree?</line>
+    </group>
+    <!-- SCENE 1 - BRANCH: REFUSAL TO ESCAPE -->
+    <group id="1-2">
+        <line>Right? OK, well I'm gonna poke around outside, so I'll see you all later.</line>
+        <line>I was going to invite you to use my escape tunnel with me, but it seems like you'd rather spend eternity in this cell!</line>
+        <line emotion="happy">Ta ta!</line>
+    </group>
+    <!-- SCENE 1 - BRANCH: WANT TO ESCAPE -->
+    <group id="1-3">
+        <line emotion="confused">You don't think so?</line>
+        <line emotion="normal">Well, here's something that might interest you.</line>
+        <line>When I was first thrown in this cell I noticed that some of the stones in the floor were loose.</line>
+        <line>I was able to remove the stones, and behind them I found a tunnel that led straight out of town!</line>
+        <line>I can't imagine why anyone might need a tunnel, but if you're so keen on leaving, you're welcome to try it.</line>
+        <line emotion="happy">It was nice to meet all of you! Best of luck! Goodbye!</line>
+    </group>
+</dialogue>

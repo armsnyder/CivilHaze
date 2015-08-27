@@ -1,0 +1,157 @@
+{
+  "empty": {
+    "meta": {
+      "width": 0,
+      "height": 0
+    },
+    "objects": [],
+    "layers": {
+      "foreground": [
+        []
+      ],
+      "background": [
+        []
+      ]
+    }
+  },
+  "simple": {
+    "meta": {
+      "width": 1,
+      "height": 1
+    },
+    "objects": [{"id": "a", "type": "house", "width": 1, "height": 1}],
+    "layers": {
+      "foreground": [
+        [{"id": "a"}]
+      ],
+      "background": [
+        [{"type": "dirt"}]
+      ]
+    }
+  },
+  "complex": {
+    "meta": {
+      "width": 8,
+      "height": 6
+    },
+    "objects": [
+      {"id": "a", "type": "house", "width": 1, "height": 1},
+      {"id": "b", "type": "prison", "width": 3, "height": 3},
+      {"id": "asd", "type": "shop", "width": 2, "height": 1},
+      {"id": "12", "type": "house", "width": 1, "height": 2},
+      {"id": "23e", "type": "fence"},
+      {"id": "df", "type": "gate", "width": 2, "height": 1}],
+    "layers": {
+      "foreground": [
+        [null, {"id": "23e"}, {"id": "23e"}, {"id": "23e"}, {"id": "23e"}, {"id": "23e"}, {"id": "23e"}],
+        [{"id": "23e"}, {"id": "23e"}, {"id": "asd"}, {"id": "asd"}, {}, {}, {"id": "23e"}, {"id": "23e"}],
+        [{"id": "23e"}, 0, {}, {"id": "b"}, {"id": "b"}, {"id": "b"}, {"id": "12"}, {"id": "23e"}],
+        [{"id": "23e"}, {"id": "a"}, {}, {"id": "b"}, {"id": "b"}, {"id": "b"}, {"id": "12"}, {"id": "23e"}],
+        [{"id": "23e"}, {}, false, {"id": "b"}, {"id": "b"}, {"id": "b"}, {}, {"id": "23e"}],
+        [{"id": "23e"}, {"id": "df"}, {"id": "df"}, {"id": "23e"}, {"id": "23e"}, {"id": "23e"}, {"id": "23e"}, {"id": "23e"}]
+      ],
+      "background": [
+        [{"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}],
+        [{"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}],
+        [{"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}],
+        [{"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}],
+        [{"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}, {"type": "dirt"}],
+        [{"type": "grass"}, {"type": "dirt"}, {"type": "grass"}, {"type": "grass"}, {"type": "grass"}, {"type": "grass"}, {"type": "grass"}, {"type": "grass"}]
+      ]
+    }
+  },
+  "wrongBoardSize": {
+    "meta": {
+      "width": 1,
+      "height": 1
+    },
+    "objects": [
+      {"id": "a", "type": "house", "width": 1, "height": 2}
+    ],
+    "layers": {
+      "foreground": [
+        {"id": "a"}, {"id": "a"}
+      ],
+      "background": [
+        {"type": "dirt"}, {"type": "dirt"}
+      ]
+    }
+  },
+  "invalidID": {
+    "meta": {
+      "width": 1,
+      "height": 1
+    },
+    "objects": [],
+    "layers": {
+      "foreground": [
+        {"id": "a"}
+      ],
+      "background": [
+        {"type": "dirt"}
+      ]
+    }
+  },
+  "invalidType": {
+    "meta": {
+      "width": 1,
+      "height": 1
+    },
+    "objects": [
+      {"id": "g", "type": "gibberish"}
+    ],
+    "layers": {
+      "foreground": [
+        {"id": "g"}
+      ],
+      "background": [
+        {"type": "dirt"}
+      ]
+    }
+  },
+  "wrongObjectSize": {
+    "meta": {
+      "width": 2,
+      "height": 1
+    },
+    "objects": [
+      {"id": "1", "type": "house", "height": 1, "width": 2}
+    ],
+    "layers": {
+      "foreground": [
+        {"id": "1"}
+      ],
+      "background": [
+        {"type": "dirt"}, {"type": "dirt"}
+      ]
+    }
+  },
+  "duplicateObject": {
+    "meta": {
+      "width": 2,
+      "height": 1
+    },
+    "objects": [
+      {"id": "1", "type": "house", "height": 1, "width": 1}
+    ],
+    "layers": {
+      "foreground": [
+        {"id": "1"}, {"id": "1"}
+      ],
+      "background": [
+        {"type": "dirt"}, {"type": "dirt"}
+      ]
+    }
+  },
+  "noBackground": {
+    "meta": {
+      "width": 1,
+      "height": 1
+    },
+    "objects": [],
+    "layers": {
+      "foreground": [],
+      "background": []
+    }
+  }
+}

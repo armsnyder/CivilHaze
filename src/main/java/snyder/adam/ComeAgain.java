@@ -26,7 +26,7 @@ public class ComeAgain extends StateBasedGame {
     private static final int LOGIC_UPDATE_INTERVAL = FPS;
 
     /** Debug mode enable */
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     /** VSync enable */
     private static final boolean V_SYNC = true;
