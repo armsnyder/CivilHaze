@@ -1,8 +1,8 @@
 .DS_Store
-.idea/
+hub/.idea/
 spring/src/remote/dist/
 spring/src/remote/.sass-cache/
 spring/src/remote/logs/
 spring/src/remote/bower_components/
 spring/src/remote/node_modules/
-target/
+hub/target/
