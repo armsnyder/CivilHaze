@@ -18,9 +18,9 @@ public class Resources {
     private static Map<String, Sound> sounds;
 
     private Resources() {
-        images = new HashMap<String, Image>();
-        sprites = new HashMap<String, SpriteSheet>();
-        sounds = new HashMap<String, Sound>();
+        images = new HashMap<>();
+        sprites = new HashMap<>();
+        sounds = new HashMap<>();
 
         loadResources();
     }

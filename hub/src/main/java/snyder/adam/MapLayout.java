@@ -22,10 +22,10 @@ public class MapLayout {
     }
 
     private void init() {
-        background = new ArrayList<TypedDataTile>();
-        buildings = new ArrayList<BuildingDataTile>();
-        fence = new ArrayList<DataTile>();
-        gate = new ArrayList<DataTile>();
+        background = new ArrayList<>();
+        buildings = new ArrayList<>();
+        fence = new ArrayList<>();
+        gate = new ArrayList<>();
         width = 0;
         height = 0;
     }

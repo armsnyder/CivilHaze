@@ -70,14 +70,7 @@ public class MapLayoutTest {
     }
 
     private Element getMap(String key) throws IOException, ParserConfigurationException, SAXException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        URL url = classLoader.getResource("mapLayouts.xml");
-        assert url != null;
-        File xmlFile = new File(url.getFile());
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document document = builder.parse(xmlFile);
-        document.getDocumentElement().normalize();
+        Document document = Util.getXMLResource("mapLayouts.xml", getClass().getClassLoader());
         NodeList nodeList = document.getElementsByTagName("layout");
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node item = nodeList.item(i);
