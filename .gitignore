@@ -8,3 +8,4 @@ spring/src/remote/bower_components/
 spring/src/remote/node_modules/
 hub/target/
 *.iml
+.musicapps-project-folder
