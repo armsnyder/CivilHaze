@@ -90,18 +90,22 @@ public class MapLayout {
         return height;
     }
 
+    @SuppressWarnings("unchecked")
     public ArrayList<TypedDataTile> getBackground() {
         return (ArrayList<TypedDataTile>) background.clone();
     }
 
+    @SuppressWarnings("unchecked")
     public ArrayList<BuildingDataTile> getBuildings() {
         return (ArrayList<BuildingDataTile>) buildings.clone();
     }
 
+    @SuppressWarnings("unchecked")
     public ArrayList<DataTile> getFence() {
         return (ArrayList<DataTile>) fence.clone();
     }
 
+    @SuppressWarnings("unchecked")
     public ArrayList<DataTile> getGate() {
         return (ArrayList<DataTile>) gate.clone();
     }

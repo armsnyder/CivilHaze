@@ -4,6 +4,7 @@ import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
+import snyder.adam.states.FooState;
 import snyder.adam.states.GameState;
 
 /**
@@ -43,7 +44,7 @@ public class ComeAgain extends StateBasedGame {
         container.setShowFPS(DEBUG);
         container.setVSync(V_SYNC);
 
-        this.addState(new GameState());
+        this.addState(new FooState());
     }
     
     public static void main(String[] args) throws SlickException {

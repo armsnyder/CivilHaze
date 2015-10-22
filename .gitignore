@@ -1,4 +1,5 @@
 .DS_Store
+.idea/
 hub/.idea/
 spring/src/remote/dist/
 spring/src/remote/.sass-cache/
