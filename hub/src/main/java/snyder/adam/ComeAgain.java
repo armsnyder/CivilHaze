@@ -5,7 +5,6 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import snyder.adam.states.FooState;
-import snyder.adam.states.GameState;
 
 /**
  * @author Adam Snyder
