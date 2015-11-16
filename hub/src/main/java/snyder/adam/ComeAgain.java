@@ -7,6 +7,8 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import snyder.adam.states.FooState;
 
+import java.awt.*;
+
 /**
  * @author Adam Snyder
  */
@@ -46,14 +48,14 @@ public class ComeAgain extends StateBasedGame {
     }
     
     public static void main(String[] args) throws SlickException {
-        AppGameContainer app = new AppGameContainer(null);
-        int displayWidth = app.getScreenWidth();
-        int displayHeight = app.getScreenHeight();
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int displayWidth = (int) screenSize.getWidth();
+        int displayHeight = (int) screenSize.getHeight();
         Resolution defaultResolution = FULL_SCREEN ?
                 Resolution.getMatchingFullScreenResolution(displayWidth, displayHeight) :
                 Resolution.getMatchingWindowedResolution(displayWidth, displayHeight);
-        app = new AppGameContainer(new ScalableGame(new ComeAgain(), defaultResolution.WIDTH, defaultResolution.HEIGHT,
-                false));
+        AppGameContainer app = new AppGameContainer(new ScalableGame(new ComeAgain(), defaultResolution.WIDTH,
+                defaultResolution.HEIGHT, false));
         if (FULL_SCREEN) {
             app.setDisplayMode(displayWidth, displayHeight, true);
         } else {

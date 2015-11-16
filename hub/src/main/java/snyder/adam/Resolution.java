@@ -22,9 +22,12 @@ public class Resolution implements Comparable<Resolution> {
         resolutions.add(new Resolution(1360, 768)); // ~16:9
         resolutions.add(new Resolution(1024, 768)); // 4:3
         resolutions.add(new Resolution(1280, 800)); // 16:10
-        resolutions.add(new Resolution(2560, 1440)); // 16:9
+        resolutions.add(new Resolution(2560, 1440)); // 16:9 iMac 5K default
         resolutions.add(new Resolution(2560, 1600)); // 16:10
         resolutions.add(new Resolution(800, 600)); // 4:3
+        resolutions.add(new Resolution(2880, 1620)); // 16:9 iMac 5K +1
+        resolutions.add(new Resolution(3200, 1800)); // 16:9 iMac 5K +2
+        resolutions.add(new Resolution(5120, 2880)); // 16:9 iMac 5K MAX
 
         Collections.sort(resolutions);
         supportedResolutions = new Resolution[resolutions.size()];
@@ -85,7 +88,7 @@ public class Resolution implements Comparable<Resolution> {
         float edgeBuffer = 1.1f;
         for (int i = supportedResolutions.length-1; i >= 0; i--) {
             Resolution r = supportedResolutions[i];
-            if (r.WIDTH * edgeBuffer < displayWidth && r.HEIGHT * edgeBuffer < displayHeight) {
+            if (r.WIDTH * edgeBuffer <= displayWidth && r.HEIGHT * edgeBuffer <= displayHeight) {
                 return r;
             }
         }
