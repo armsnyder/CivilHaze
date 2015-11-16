@@ -1,0 +1,11 @@
+.DS_Store
+.idea/
+.git/
+*.iml
+workspace/
+hub/
+web/node_modules/
+web/bower_components/
+web/tmp/
+web/.DS_Store
+web/.idea
