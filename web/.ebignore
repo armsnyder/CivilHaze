@@ -1,0 +1,8 @@
+.DS_Store
+.git/
+*.iml
+node_modules/
+bower_components/
+app/bower_components/
+tmp/
+.idea

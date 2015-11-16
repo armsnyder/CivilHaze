@@ -7,5 +7,6 @@ spring/src/remote/logs/
 spring/src/remote/bower_components/
 spring/src/remote/node_modules/
 hub/target/
+web/app/bower_components/
 *.iml
 .musicapps-project-folder

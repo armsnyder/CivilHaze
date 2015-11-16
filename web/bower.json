@@ -1,10 +1,10 @@
 {
-  "name": "angular-seed",
-  "description": "A starter project for AngularJS",
+  "name": "come-again",
+  "description": "Interactive art",
   "version": "0.0.0",
-  "homepage": "https://github.com/angular/angular-seed",
+  "homepage": "https://github.com/friendly-flame/ComeAgain",
   "license": "All Rights Reserved",
-  "private": true,
+  "private": false,
   "dependencies": {
     "angular": "~1.4.0",
     "angular-route": "~1.4.0",
