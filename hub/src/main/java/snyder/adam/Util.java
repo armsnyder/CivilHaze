@@ -6,15 +6,17 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
+import java.util.Random;
 
 /**
  * Miscellaneous utility functions
  * @author Adam Snyder
  */
 public class Util {
+
+    public static final Random RANDOM = new Random();
 
     public static Document getXMLResource(String path) throws ParserConfigurationException, IOException, SAXException {
         File xmlFile = getResource(path);
@@ -44,5 +46,16 @@ public class Util {
         Document document = builder.parse(xmlFile);
         document.getDocumentElement().normalize();
         return document;
+    }
+
+    public static String getStringFromInputStream(InputStream is) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        String line;
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        while ((line = br.readLine()) != null) {
+            sb.append(line);
+        }
+        br.close();
+        return sb.toString();
     }
 }

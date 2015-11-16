@@ -1,27 +1,21 @@
 package snyder.adam.states;
 
-import com.sun.net.httpserver.HttpServer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
-import snyder.adam.Server;
+import snyder.adam.Participant;
+import snyder.adam.network.MobileListener;
+import snyder.adam.network.Server;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetSocketAddress;
-
-import javax.bluetooth.*;
-import javax.microedition.io.Connector;
-import javax.obex.*;
+import java.util.HashMap;
 
 /**
  * @author Flame
  */
 public class FooState extends BasicGameState {
-
-    static final String serverUUID = "11111111111111111111111111111123";
 
     @Override
     public int getID() {
@@ -29,16 +23,14 @@ public class FooState extends BasicGameState {
     }
 
     public void init(GameContainer container, StateBasedGame stateBasedGame) throws SlickException {
-        HttpServer server = null;
+        Server s = null;
         try {
-            server = HttpServer.create(new InetSocketAddress(8000), 0);
+            s = new Server(new HashMap<Integer, Participant>(), new Listener(), 8000);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        assert server != null;
-        server.createContext("/test", new Server());
-        server.setExecutor(null); // creates a default executor
-        server.start();
+        Thread t = new Thread(s);
+        t.start();
     }
 
     public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
@@ -47,5 +39,43 @@ public class FooState extends BasicGameState {
 
     public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
 
+    }
+
+    class Listener implements MobileListener {
+
+        @Override
+        public void onButtonPress(Participant participant, String button) {
+            System.out.println("button press");
+        }
+
+        @Override
+        public void onButtonRelease(Participant participant, String button) {
+            System.out.println("button release");
+
+        }
+
+        @Override
+        public void onVote(Participant participant, int[] votedFor) {
+            System.out.println("vote");
+
+        }
+
+        @Override
+        public void onConnect(Participant participant) {
+            System.out.println("connect");
+
+        }
+
+        @Override
+        public void onDisconnect(Participant participant) {
+            System.out.println("disconnect");
+
+        }
+
+        @Override
+        public void onUpdate(Participant participant) {
+            System.out.println("update");
+
+        }
     }
 }

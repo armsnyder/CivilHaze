@@ -2,20 +2,18 @@ package snyder.adam;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.ScalableGame;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import snyder.adam.states.FooState;
-import snyder.adam.states.GameState;
 
 /**
  * @author Adam Snyder
  */
 public class ComeAgain extends StateBasedGame {
 
-    /** Screen width */
-    private static final int WIDTH = 800;
-    /** Screen height */
-    private static final int HEIGHT = 600;
+    /** Full screen */
+    private static final boolean FULL_SCREEN = false;
 
     /** Screen title */
     private static final String TITLE = "Come With Me, Again";
@@ -48,8 +46,19 @@ public class ComeAgain extends StateBasedGame {
     }
     
     public static void main(String[] args) throws SlickException {
-        AppGameContainer app = new AppGameContainer(new ComeAgain());
-        app.setDisplayMode(WIDTH, HEIGHT, false);
+        AppGameContainer app = new AppGameContainer(null);
+        int displayWidth = app.getScreenWidth();
+        int displayHeight = app.getScreenHeight();
+        Resolution defaultResolution = FULL_SCREEN ?
+                Resolution.getMatchingFullScreenResolution(displayWidth, displayHeight) :
+                Resolution.getMatchingWindowedResolution(displayWidth, displayHeight);
+        app = new AppGameContainer(new ScalableGame(new ComeAgain(), defaultResolution.WIDTH, defaultResolution.HEIGHT,
+                false));
+        if (FULL_SCREEN) {
+            app.setDisplayMode(displayWidth, displayHeight, true);
+        } else {
+            app.setDisplayMode(defaultResolution.WIDTH, defaultResolution.HEIGHT, false);
+        }
         app.setForceExit(false);
         app.start();
     }
