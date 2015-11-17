@@ -12,3 +12,8 @@ web/app/bower_components/
 .musicapps-project-folder
 web/node_modules/
 web/bower_components/
+
+# Elastic Beanstalk Files
+#.elasticbeanstalk/*
+#!.elasticbeanstalk/*.cfg.yml
+#!.elasticbeanstalk/*.global.yml
