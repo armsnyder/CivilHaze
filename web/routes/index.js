@@ -12,4 +12,6 @@ router.get('/', function(req, res, next) {
     }
 });
 
+router.get('/api/gameID');
+
 module.exports = router;
