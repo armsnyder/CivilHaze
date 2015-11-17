@@ -10,3 +10,5 @@ hub/target/
 web/app/bower_components/
 *.iml
 .musicapps-project-folder
+web/node_modules/
+web/bower_components/
