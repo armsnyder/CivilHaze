@@ -1,9 +1,15 @@
 var express = require('express');
 var router = express.Router();
+var MobileDetect = require('mobile-detect');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+    var md = new MobileDetect(req.headers['user-agent']);
+    if (md.mobile()) {
+        res.render('mobileIndex', { title: 'Controller' });
+    } else {
+        res.render('desktopIndex', { title: 'Come Again' });
+    }
 });
 
 module.exports = router;

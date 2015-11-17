@@ -12,6 +12,7 @@ web/app/bower_components/
 .musicapps-project-folder
 web/node_modules/
 web/bower_components/
+web/npm-debug.log
 
 # Elastic Beanstalk Files
 #.elasticbeanstalk/*
