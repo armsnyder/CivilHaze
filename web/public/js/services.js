@@ -1,4 +1,4 @@
-angular.module('come-again')
+angular.module('comeAgain')
     .factory('ControllerService', function($http) {
         var factory = {};
         factory.getGameIP = function() {
