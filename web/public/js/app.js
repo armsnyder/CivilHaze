@@ -1,4 +1,4 @@
-angular.module('comeAgain', [])
+angular.module('comeAgain', ['ngRoute'])
     .config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
         $routeProvider
             .when('/', {

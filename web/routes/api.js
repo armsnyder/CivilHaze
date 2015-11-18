@@ -1,5 +1,6 @@
 var fs = require('fs');
 var mysql = require('mysql');
+var ip = require('ip');
 var secret = getConfig('../secret.json');
 
 // Database setup
@@ -19,7 +20,8 @@ exports.getPrivate = function(req, res) {
                 err: err.code
             });
         } else {
-            connection.query('SELECT * FROM games WHERE public_ip='+publicIP, function(err, rows, fields) {
+            connection.query('SELECT * FROM games WHERE public_ip='+publicIP+" ORDER BY last_updated DESC",
+                function(err, rows) {
                 if (err) {
                     console.error(err);
                     res.statusCode = 500;
@@ -28,12 +30,7 @@ exports.getPrivate = function(req, res) {
                         err: err.code
                     })
                 } else {
-                    if (rows.length==1) {
-                        res.json({
-                            result: rows[0],
-                            err: ''
-                        })
-                    } else if (rows.length < 1) {
+                    if (rows.length == 0) {
                         err = 'Could not find requested IP';
                         console.error(err);
                         res.statusCode = 404;
@@ -42,16 +39,14 @@ exports.getPrivate = function(req, res) {
                             err: err
                         })
                     } else {
-                        //TODO: Account for this possibility
-                        err = 'Found more than one game active on subnet';
-                        console.error(err);
-                        res.statusCode = 500;
+                        //TODO: Account for multiple valid games on a single subnet
                         res.json({
-                            result: 'error',
-                            err: err
+                            result: rows[0],
+                            err: '',
+                            ip: req.ip,
+                            ipNum: ip.toLong(req.ip)
                         })
                     }
-
                 }
                 connection.release();
             });

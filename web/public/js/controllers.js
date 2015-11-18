@@ -1,3 +1,3 @@
-exports.IndexController = function($scope) {
+function IndexController($scope) {
     $scope.foo = "Chicken";
-};
+}
