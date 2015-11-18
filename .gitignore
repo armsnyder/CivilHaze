@@ -13,6 +13,7 @@ web/app/bower_components/
 web/node_modules/
 web/bower_components/
 web/npm-debug.log
+web/secret.json
 
 # Elastic Beanstalk Files
 #.elasticbeanstalk/*
