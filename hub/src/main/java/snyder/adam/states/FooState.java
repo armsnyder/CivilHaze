@@ -25,7 +25,7 @@ public class FooState extends BasicGameState {
     public void init(GameContainer container, StateBasedGame stateBasedGame) throws SlickException {
         Server s = null;
         try {
-            s = new Server(new HashMap<Integer, Participant>(), new Listener(), 8000);
+            s = new Server(new HashMap<String, Participant>(), new Listener(), 8000);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -45,36 +45,36 @@ public class FooState extends BasicGameState {
 
         @Override
         public void onButtonPress(Participant participant, String button) {
-            System.out.println("button press");
+            System.out.println(participant+" pressed "+button);
         }
 
         @Override
         public void onButtonRelease(Participant participant, String button) {
-            System.out.println("button release");
+            System.out.println(participant+" released "+button);
 
         }
 
         @Override
         public void onVote(Participant participant, int[] votedFor) {
-            System.out.println("vote");
+            System.out.println("vote from "+participant);
 
         }
 
         @Override
         public void onConnect(Participant participant) {
-            System.out.println("connect");
+            System.out.println("connected "+participant);
 
         }
 
         @Override
         public void onDisconnect(Participant participant) {
-            System.out.println("disconnect");
+            System.out.println("disconnect "+participant);
 
         }
 
         @Override
         public void onPing(Participant participant) {
-            System.out.println("ping from "+participant.getId());
+            System.out.println("ping from "+participant);
 
         }
 

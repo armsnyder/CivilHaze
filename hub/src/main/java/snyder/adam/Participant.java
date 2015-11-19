@@ -4,16 +4,16 @@ package snyder.adam;
  * @author Adam Snyder
  */
 public class Participant {
-    private final int id;
+    private final String ipAddress;
     private long lastPing;
 
-    public Participant(int participantId) {
-        id = participantId;
+    public Participant(String ipAddress) {
+        this.ipAddress = ipAddress;
         setLastPing();
     }
 
-    public int getId() {
-        return id;
+    public String getIpAddress() {
+        return ipAddress;
     }
 
     public long getLastPing() {
@@ -22,5 +22,10 @@ public class Participant {
 
     public void setLastPing() {
         this.lastPing = System.currentTimeMillis();
+    }
+
+    @Override
+    public String toString() {
+        return ipAddress;
     }
 }

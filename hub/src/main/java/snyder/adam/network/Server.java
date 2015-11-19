@@ -26,11 +26,11 @@ public class Server implements Runnable {
     private static final long TIMEOUT_INTERVAL = 2000; // Time in milliseconds between checking for timed out clients
     private boolean isRunning = false;
     private final HttpServer server;
-    private final Map<Integer, Participant> participantMap;
+    private final Map<String, Participant> participantMap;
     private final MobileListener listener;
     private boolean hasError = false;
 
-    public Server(Map<Integer, Participant> participantMap, MobileListener listener, int port) throws IOException {
+    public Server(Map<String, Participant> participantMap, MobileListener listener, int port) throws IOException {
         this.participantMap = participantMap;
         this.listener = listener;
         server = HttpServer.create(new InetSocketAddress(port), 0);
@@ -58,18 +58,18 @@ public class Server implements Runnable {
     }
 
     public boolean isParticipantConnected(Participant participant) {
-        return participantMap.containsKey(participant.getId());
+        return participantMap.containsKey(participant.getIpAddress());
     }
 
-    public boolean isParticipantConnected(int id) {
-        return participantMap.containsKey(id);
+    public boolean isParticipantConnected(String ipAddress) {
+        return participantMap.containsKey(ipAddress);
     }
 
     private void disconnectTimedOutPlayers() {
         long now = System.currentTimeMillis();
         synchronized (participantMap) {
-            for (Iterator<Map.Entry<Integer, Participant>> it = participantMap.entrySet().iterator(); it.hasNext();) {
-                Map.Entry<Integer, Participant> entry = it.next();
+            for (Iterator<Map.Entry<String, Participant>> it = participantMap.entrySet().iterator(); it.hasNext();) {
+                Map.Entry<String, Participant> entry = it.next();
                 Participant participant = entry.getValue();
                 if (participant.getLastPing() + CLIENT_TIMEOUT < now) {
                     listener.onDisconnect(participant);
@@ -129,6 +129,8 @@ public class Server implements Runnable {
         public void handle(HttpExchange t) throws IOException {
             String[] path = t.getRequestURI().getPath().split("/");
             try {
+                Headers headers = t.getResponseHeaders();
+                headers.add("Content-Type", "application/json");
                 switch (t.getRequestMethod()) {
                     case "GET":
                         handleGet(t, path);
@@ -146,63 +148,18 @@ public class Server implements Runnable {
         }
 
         private void handleGet(HttpExchange t, String[] path) throws IOException {
-            Headers headers = t.getResponseHeaders();
-            headers.add("Content-Type", "application/json");
             switch (path[1]) {
                 case "connect":
                     handleConnect(t);
                     break;
+                case "disconnect":
+                    handleDisconnect(t);
+                    break;
                 case "ping":
-                    handlePing(t, path);
+                    handlePing(t);
+                    break;
                 default:
                     respondWithError(t);
-            }
-        }
-
-        private void handlePing(HttpExchange t, String[] path) throws IOException {
-            if (path.length > 2) {
-                synchronized (participantMap) {
-                    int participantId;
-                    try {
-                        participantId = Integer.parseInt(path[2]);
-                    } catch (NumberFormatException e) {
-                        respondWithError(t);
-                        return;
-                    }
-                    if (participantMap.containsKey(participantId)) {
-                        Participant participant = participantMap.get(participantId);
-                        participant.setLastPing();
-                        listener.onPing(participant);
-                    } else {
-                        respondWithError(t);
-                        return;
-                    }
-                }
-            }
-            respondWithSuccess(t, "pong");
-        }
-
-        private void handleConnect(HttpExchange t) throws IOException {
-            synchronized (participantMap) {
-                if (participantMap.size() < MAX_PARTICIPANTS) {
-                    int participantId = -1;
-                    for (int i=0; i<MAX_PARTICIPANTS; i++) {
-                        if (!participantMap.containsKey(i)) {
-                            participantId = i;
-                            break;
-                        }
-                    }
-                    if (participantId > -1) {
-                        Participant connectedParticipant = new Participant(participantId);
-                        participantMap.put(participantId, connectedParticipant);
-                        listener.onConnect(connectedParticipant);
-                        respondWithSuccess(t, "{\"connected\":true, \"id\":" + participantId + "}");
-                    } else {
-                        respondWithSuccess(t, "{\"connected\":false}");
-                    }
-                } else {
-                    respondWithSuccess(t, "{\"connected\":false}");
-                }
             }
         }
 
@@ -212,23 +169,75 @@ public class Server implements Runnable {
                     handleInput(t, path);
                     break;
                 case "ping":
-                    handlePing(t, path);
+                    handlePing(t);
+                    break;
+                case "connect":
+                    handleConnect(t);
+                    break;
+                case "disconnect":
+                    handleDisconnect(t);
+                    break;
                 default:
                     respondWithError(t);
             }
         }
 
+        private void handlePing(HttpExchange t) throws IOException {
+            synchronized (participantMap) {
+                String ip = t.getRemoteAddress().getHostName();
+                if (participantMap.containsKey(ip)) {
+                    Participant participant = participantMap.get(ip);
+                    participant.setLastPing();
+                    listener.onPing(participant);
+                    respondWithSuccess(t, "true");
+                } else {
+                    respondWithSuccess(t, "false");
+                }
+            }
+
+        }
+
+        private void handleConnect(HttpExchange t) throws IOException {
+            String ip = t.getRemoteAddress().getHostName();
+            synchronized (participantMap) {
+                if (participantMap.containsKey(ip)) {
+                    participantMap.get(ip).setLastPing();
+                    respondWithSuccess(t, "true");
+                } else {
+                    if (participantMap.size() < MAX_PARTICIPANTS) {
+                        Participant connectedParticipant = new Participant(ip);
+                        participantMap.put(ip, connectedParticipant);
+                        listener.onConnect(connectedParticipant);
+                        respondWithSuccess(t, "true");
+                    } else {
+                        respondWithSuccess(t, "false");
+                    }
+                }
+            }
+        }
+
+        private void handleDisconnect(HttpExchange t) throws IOException {
+            String ip = t.getRemoteAddress().getHostName();
+            synchronized (participantMap) {
+                if (participantMap.containsKey(ip)) {
+                    listener.onDisconnect(participantMap.get(ip));
+                    participantMap.remove(ip);
+                }
+            }
+            respondWithSuccess(t);
+        }
+
         private void handleInput(HttpExchange t, String[] path) throws IOException {
-            int participantId = Integer.parseInt(path[2]);
+            String participantId = t.getRemoteAddress().getHostName();
             synchronized (participantMap) {
                 if (participantMap.containsKey(participantId)) {
                     participantMap.get(participantId).setLastPing();
-                    switch (path[3]) {
+                    switch (path[2]) {
                         case "button":
                             handleButton(t, path, participantId);
                             break;
                         case "vote":
-                            handleVote(t, path, participantId);
+                            handleVote(t, participantId);
                             break;
                         default:
                             respondWithError(t);
@@ -239,9 +248,9 @@ public class Server implements Runnable {
             }
         }
 
-        private void handleButton(HttpExchange t, String[] path, int participantId) throws IOException {
-            String button = path[4];
-            switch (path[5]) {
+        private void handleButton(HttpExchange t, String[] path, String participantId) throws IOException {
+            String button = path[3];
+            switch (path[4]) {
                 case "on":
                     listener.onButtonPress(participantMap.get(participantId), button);
                     respondWithSuccess(t);
@@ -255,7 +264,7 @@ public class Server implements Runnable {
             }
         }
 
-        private void handleVote(HttpExchange t, String[] path, int participantId) throws IOException {
+        private void handleVote(HttpExchange t, String participantId) throws IOException {
             String data = Util.getStringFromInputStream(t.getRequestBody());
             data = data.replaceAll("[^0-9]+", " ");
             String[] voteStrings = data.trim().split(" ");
