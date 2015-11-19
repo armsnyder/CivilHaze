@@ -73,9 +73,19 @@ public class FooState extends BasicGameState {
         }
 
         @Override
-        public void onUpdate(Participant participant) {
-            System.out.println("update");
+        public void onPing(Participant participant) {
+            System.out.println("ping from "+participant.getId());
 
+        }
+
+        @Override
+        public void onServerReady() {
+            System.out.println("server ready");
+        }
+
+        @Override
+        public void onServerFatalError(String description) {
+            System.out.println("server error: "+description);
         }
     }
 }

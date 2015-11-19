@@ -18,5 +18,9 @@ public interface MobileListener {
 
     void onDisconnect(Participant participant);
 
-    void onUpdate(Participant participant);
+    void onPing(Participant participant);
+
+    void onServerReady();
+
+    void onServerFatalError(String description);
 }

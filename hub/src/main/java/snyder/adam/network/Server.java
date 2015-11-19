@@ -1,16 +1,20 @@
 package snyder.adam.network;
 
-import com.sun.net.httpserver.*;
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import org.json.JSONObject;
 import snyder.adam.Participant;
 import snyder.adam.Util;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.net.*;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * @author Adam Snyder
@@ -18,9 +22,13 @@ import java.util.Random;
 public class Server implements Runnable {
 
     private static final int MAX_PARTICIPANTS = 15;
+    private static final long CLIENT_TIMEOUT = 15000;  // Min interval (in milliseconds) that clients must ping
+    private static final long TIMEOUT_INTERVAL = 2000; // Time in milliseconds between checking for timed out clients
+    private boolean isRunning = false;
     private final HttpServer server;
     private final Map<Integer, Participant> participantMap;
-    private MobileListener listener;
+    private final MobileListener listener;
+    private boolean hasError = false;
 
     public Server(Map<Integer, Participant> participantMap, MobileListener listener, int port) throws IOException {
         this.participantMap = participantMap;
@@ -32,7 +40,84 @@ public class Server implements Runnable {
 
     @Override
     public void run() {
-    server.start();
+        server.start();
+        try {
+            updateIpTable();
+        } catch (IOException e) {
+            signalError("Failed to read IP");
+        }
+        isRunning = true;
+        if (!hasError) listener.onServerReady();
+        while (isRunning) {
+            try {
+                Thread.sleep(TIMEOUT_INTERVAL);
+            } catch (InterruptedException ignored) {}
+            disconnectTimedOutPlayers();
+        }
+
+    }
+
+    public boolean isParticipantConnected(Participant participant) {
+        return participantMap.containsKey(participant.getId());
+    }
+
+    public boolean isParticipantConnected(int id) {
+        return participantMap.containsKey(id);
+    }
+
+    private void disconnectTimedOutPlayers() {
+        long now = System.currentTimeMillis();
+        synchronized (participantMap) {
+            for (Iterator<Map.Entry<Integer, Participant>> it = participantMap.entrySet().iterator(); it.hasNext();) {
+                Map.Entry<Integer, Participant> entry = it.next();
+                Participant participant = entry.getValue();
+                if (participant.getLastPing() + CLIENT_TIMEOUT < now) {
+                    listener.onDisconnect(participant);
+                    it.remove();
+                }
+            }
+        }
+    }
+
+    private void updateIpTable() throws IOException {
+        String url = "http://come-again.net/api/private";
+        String publicIP = Long.toString(getByteIP(getPublicIP()));
+        String privateIP = Long.toString(getByteIP(getPrivateIP()));
+        String params = "{\"publicIP\":"+publicIP+",\"privateIP\":"+privateIP+"}";
+        try {
+            String response = Util.executePost(url, params);
+            JSONObject o = new JSONObject(response);
+            if (!o.has("error") || ((String)o.get("error")).length() > 0) {
+                signalError("Failed to update routing table");
+            }
+        } catch (SocketException e) {
+            signalError("Failed to update routing table");
+        }
+    }
+
+    private void signalError(String error) {
+        listener.onServerFatalError(error);
+        hasError = true;
+    }
+
+    private static String getPublicIP() throws IOException {
+        URL whatismyip = new URL("http://checkip.amazonaws.com");  //TODO: Don't rely on external source
+        BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
+        return in.readLine();
+    }
+
+    private static String getPrivateIP() throws UnknownHostException {
+        return InetAddress.getLocalHost().getHostAddress();
+    }
+
+    private static long getByteIP(String address) throws UnknownHostException {
+        InetAddress inetAddress = InetAddress.getByName(address);
+        long result = 0;
+        for (byte b: inetAddress.getAddress())
+        {
+            result = result << 8 | (b & 0xFF);
+        }
+        return result;
     }
 
     class InputHandler implements HttpHandler {
@@ -67,9 +152,34 @@ public class Server implements Runnable {
                 case "connect":
                     handleConnect(t);
                     break;
+                case "ping":
+                    handlePing(t, path);
                 default:
                     respondWithError(t);
             }
+        }
+
+        private void handlePing(HttpExchange t, String[] path) throws IOException {
+            if (path.length > 2) {
+                synchronized (participantMap) {
+                    int participantId;
+                    try {
+                        participantId = Integer.parseInt(path[2]);
+                    } catch (NumberFormatException e) {
+                        respondWithError(t);
+                        return;
+                    }
+                    if (participantMap.containsKey(participantId)) {
+                        Participant participant = participantMap.get(participantId);
+                        participant.setLastPing();
+                        listener.onPing(participant);
+                    } else {
+                        respondWithError(t);
+                        return;
+                    }
+                }
+            }
+            respondWithSuccess(t, "pong");
         }
 
         private void handleConnect(HttpExchange t) throws IOException {
@@ -101,6 +211,8 @@ public class Server implements Runnable {
                 case "input":
                     handleInput(t, path);
                     break;
+                case "ping":
+                    handlePing(t, path);
                 default:
                     respondWithError(t);
             }
@@ -110,6 +222,7 @@ public class Server implements Runnable {
             int participantId = Integer.parseInt(path[2]);
             synchronized (participantMap) {
                 if (participantMap.containsKey(participantId)) {
+                    participantMap.get(participantId).setLastPing();
                     switch (path[3]) {
                         case "button":
                             handleButton(t, path, participantId);
