@@ -21,7 +21,7 @@ exports.getPrivate = function(req, res) {
                 error: err.code
             });
         } else {
-            connection.query('SELECT * FROM games WHERE public_ip='+publicIP+" ORDER BY last_updated DESC",
+            connection.query('SELECT * FROM games WHERE public_ip='+publicIP+" ORDER BY last_updated DESC LIMIT 1",
                 function(err, rows) {
                     if (err) {
                         console.error(err);
