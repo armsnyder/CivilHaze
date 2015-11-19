@@ -12,7 +12,7 @@ public interface MobileListener {
 
     void onButtonRelease(Participant participant, String button);
 
-    void onVote(Participant participant, int[] votedFor);
+    void onVote(Participant participant, String[] votedFor);
 
     void onConnect(Participant participant);
 

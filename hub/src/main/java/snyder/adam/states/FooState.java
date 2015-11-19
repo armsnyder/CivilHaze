@@ -55,9 +55,11 @@ public class FooState extends BasicGameState {
         }
 
         @Override
-        public void onVote(Participant participant, int[] votedFor) {
+        public void onVote(Participant participant, String[] votedFor) {
             System.out.println("vote from "+participant);
-
+            for (String vote : votedFor) {
+                System.out.println("--"+vote);
+            }
         }
 
         @Override

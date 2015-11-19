@@ -4,6 +4,8 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import snyder.adam.Participant;
 import snyder.adam.Util;
@@ -25,7 +27,7 @@ public class Server implements Runnable {
     private static final long CLIENT_TIMEOUT = 15000;  // Min interval (in milliseconds) that clients must ping
     private static final long TIMEOUT_INTERVAL = 2000; // Time in milliseconds between checking for timed out clients
     private boolean isRunning = false;
-    private final HttpServer server;
+    private HttpServer server = null;
     private final Map<String, Participant> participantMap;
     private final MobileListener listener;
     private boolean hasError = false;
@@ -33,13 +35,19 @@ public class Server implements Runnable {
     public Server(Map<String, Participant> participantMap, MobileListener listener, int port) throws IOException {
         this.participantMap = participantMap;
         this.listener = listener;
-        server = HttpServer.create(new InetSocketAddress(port), 0);
+        try {
+            server = HttpServer.create(new InetSocketAddress(port), 0);
+        } catch (BindException e) {
+            listener.onServerFatalError("Address already in use");
+            return;
+        }
         server.createContext("/", new InputHandler());
         server.setExecutor(null); // creates a default executor
     }
 
     @Override
     public void run() {
+        if (server == null) return;
         server.start();
         try {
             updateIpTable();
@@ -141,7 +149,7 @@ public class Server implements Runnable {
                     default:
                         respondWithError(t);
                 }
-            } catch (IndexOutOfBoundsException e) {
+            } catch (Exception e) {
                 respondWithError(t);
             }
             t.close();
@@ -266,11 +274,15 @@ public class Server implements Runnable {
 
         private void handleVote(HttpExchange t, String participantId) throws IOException {
             String data = Util.getStringFromInputStream(t.getRequestBody());
-            data = data.replaceAll("[^0-9]+", " ");
-            String[] voteStrings = data.trim().split(" ");
-            int[] votes = new int[voteStrings.length];
-            for (int i = 0; i < voteStrings.length; i++) {
-                votes[i] = Integer.parseInt(voteStrings[i]);
+            JSONArray ids = new JSONArray(data);
+            String[] votes = new String[ids.length()];
+            for (int i = 0; i < ids.length(); i++) {
+                try {
+                    votes[i] = ids.getString(i);
+                } catch (JSONException e) {
+                    respondWithError(t, "Player ids are not Strings");
+                    return;
+                }
             }
             listener.onVote(participantMap.get(participantId), votes);
             respondWithSuccess(t);
@@ -280,12 +292,12 @@ public class Server implements Runnable {
             t.sendResponseHeaders(ERROR_CODE, 0);
         }
 
-//        private void respondWithError(HttpExchange t, String response) throws IOException {
-//            t.sendResponseHeaders(ERROR_CODE, response.getBytes().length);
-//            OutputStream os = t.getResponseBody();
-//            os.write(response.getBytes());
-//            os.close();
-//        }
+        private void respondWithError(HttpExchange t, String response) throws IOException {
+            t.sendResponseHeaders(ERROR_CODE, response.getBytes().length);
+            OutputStream os = t.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+        }
 
         private void respondWithSuccess(HttpExchange t) throws IOException {
             t.sendResponseHeaders(SUCCESS_CODE, 0);
