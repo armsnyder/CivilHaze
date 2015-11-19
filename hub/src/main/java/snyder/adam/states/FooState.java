@@ -89,5 +89,10 @@ public class FooState extends BasicGameState {
         public void onServerFatalError(String description) {
             System.out.println("server error: "+description);
         }
+
+        @Override
+        public void onServerStopped() {
+
+        }
     }
 }

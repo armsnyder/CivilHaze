@@ -62,7 +62,8 @@ public class Server implements Runnable {
             } catch (InterruptedException ignored) {}
             disconnectTimedOutPlayers();
         }
-
+        server.stop(0);
+        listener.onServerStopped();
     }
 
     public boolean isParticipantConnected(Participant participant) {
@@ -71,6 +72,10 @@ public class Server implements Runnable {
 
     public boolean isParticipantConnected(String ipAddress) {
         return participantMap.containsKey(ipAddress);
+    }
+
+    public void stop() {
+        isRunning = false;
     }
 
     private void disconnectTimedOutPlayers() {

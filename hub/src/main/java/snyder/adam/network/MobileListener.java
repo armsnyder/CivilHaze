@@ -23,4 +23,6 @@ public interface MobileListener {
     void onServerReady();
 
     void onServerFatalError(String description);
+
+    void onServerStopped();
 }
