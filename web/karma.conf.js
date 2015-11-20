@@ -15,11 +15,11 @@ module.exports = function(config) {
 
         // list of files / patterns to load in the browser
         files: [
-            '../node_modules/angular/angular.min.js',
-            '../node_modules/angular-route/angular-route.min.js',
-            '../node_modules/angular-mocks/angular-mocks.js',
-            '../public/js/*.js',
-            '**/*.test.js'
+            'node_modules/angular/angular.js',
+            'node_modules/angular-route/angular-route.js',
+            'node_modules/angular-mocks/angular-mocks.js',
+            'public/js/**/*.js',
+            'test/**/*Spec.js'
         ],
 
 
@@ -67,7 +67,7 @@ module.exports = function(config) {
         singleRun: false,
 
         // Concurrency level
-        // how many browser should be started simultanous
+        // how many browser should be started simultaneously
         concurrency: Infinity
     })
 };
