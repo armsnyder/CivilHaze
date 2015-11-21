@@ -12,7 +12,7 @@ var connectionPool = mysql.createPool(secret.mysqlConnection);
 // GET
 
 exports.getPrivate = function(req, res) {
-    var publicIP = req.connection.remoteAddress;
+    var publicIP = getIP(req);
     connectionPool.getConnection(function(err, connection) {
         if (err) {
             console.error('CONNECTION error: ', err);
@@ -57,7 +57,7 @@ exports.getPrivate = function(req, res) {
 // POST
 
 exports.postPrivate = function(req, res) {
-    var publicIP = req.connection.remoteAddress;
+    var publicIP = getIP(req);
     var privateIP = req.params['privateIP'];
     if (privateIP) {
         connectionPool.getConnection(function(err, connection) {
@@ -112,4 +112,13 @@ function getConfig(file) {
 
     var filepath = __dirname + '/' + file;
     return readJsonFileSync(filepath);
+}
+
+function getIP(req) {
+    var ips_str = req.headers['x-forwarded-for'];
+    if (ips_str) {
+        return ips_str.split(',')[0].trim();
+    } else {
+        return req.connection.remoteAddress;
+    }
 }
