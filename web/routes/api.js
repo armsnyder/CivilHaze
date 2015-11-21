@@ -1,3 +1,5 @@
+'use strict';
+
 var fs = require('fs');
 var mysql = require('mysql');
 var ip = require('ip');
@@ -10,8 +12,7 @@ var connectionPool = mysql.createPool(secret.mysqlConnection);
 // GET
 
 exports.getPrivate = function(req, res) {
-    //TODO: For added security, check IP of client
-    var publicIP = req.params.publicIP;
+    var publicIP = req.connection.remoteAddress;
     connectionPool.getConnection(function(err, connection) {
         if (err) {
             console.error('CONNECTION error: ', err);
@@ -21,7 +22,7 @@ exports.getPrivate = function(req, res) {
                 error: err.code
             });
         } else {
-            connection.query('SELECT * FROM games WHERE public_ip='+publicIP+" ORDER BY last_updated DESC LIMIT 1",
+            connection.query("SELECT * FROM games WHERE public_ip='"+publicIP+"' ORDER BY last_updated DESC LIMIT 1",
                 function(err, rows) {
                     if (err) {
                         console.error(err);
@@ -42,7 +43,7 @@ exports.getPrivate = function(req, res) {
                         } else {
                             //TODO: Account for multiple valid games on a single subnet
                             res.json({
-                                result: rows[0],
+                                result: rows[0]['private_ip'],
                                 error: ''
                             })
                         }
@@ -56,8 +57,9 @@ exports.getPrivate = function(req, res) {
 // POST
 
 exports.postPrivate = function(req, res) {
-    //TODO: For added security, ensure client IP matches publicIP
-    if ('publicIP' in req.body && 'privateIP' in req.body) {
+    var publicIP = req.connection.remoteAddress;
+    var privateIP = req.params['privateIP'];
+    if (privateIP) {
         connectionPool.getConnection(function(err, connection) {
             if (err) {
                 console.error('CONNECTION error: ', err);
@@ -67,8 +69,7 @@ exports.postPrivate = function(req, res) {
                     error: err.code
                 });
             } else {
-                connection.query('INSERT INTO games (public_ip, private_ip) VALUES ('+
-                    req.body.publicIP+', '+req.body.privateIP+')',
+                connection.query("INSERT INTO games (public_ip, private_ip) VALUES ('"+publicIP+"', '"+privateIP+"')",
                     function(err) {
                         if (err) {
                             console.error(err);
@@ -110,6 +111,5 @@ function readJsonFileSync(filepath, encoding) {
 function getConfig(file) {
 
     var filepath = __dirname + '/' + file;
-    console.log(filepath);
     return readJsonFileSync(filepath);
 }

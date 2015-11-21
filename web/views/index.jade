@@ -1,9 +1,16 @@
 extends layout
 
 block body
-    div(ng-view)
+    div(ng-controller="MainController")
+        div(ng-switch="page")
+            div(ng-switch-when="start" ng-controller="StartController")
+                div(ng-include="'partials/start.jade'")
+            div(ng-switch-when="game")
+                div(ng-include="'partials/game.jade'")
+            div(ng-switch-when="voting")
+                div(ng-include="'partials/voting.jade'")
     script(src='lib/angular/angular.js')
-    script(src='lib/angular-route/angular-route.min.js')
+    script(src='lib/angular-resource/angular-resource.js')
     script(src='js/app.js')
     script(src='js/services.js')
     script(src='js/controllers.js')

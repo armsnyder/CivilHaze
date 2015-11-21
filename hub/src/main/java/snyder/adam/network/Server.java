@@ -93,12 +93,9 @@ public class Server implements Runnable {
     }
 
     private void updateIpTable() throws IOException {
-        String url = "http://come-again.net/api/private";
-        String publicIP = Long.toString(getByteIP(getPublicIP()));
-        String privateIP = Long.toString(getByteIP(getPrivateIP()));
-        String params = "{\"publicIP\":"+publicIP+",\"privateIP\":"+privateIP+"}";
+        String url = "http://come-again.net/api/ip/private/"+getPrivateIP();
         try {
-            String response = Util.executePost(url, params);
+            String response = Util.executePost(url, "");
             JSONObject o = new JSONObject(response);
             if (!o.has("error") || ((String)o.get("error")).length() > 0) {
                 signalError("Failed to update routing table");
@@ -113,24 +110,8 @@ public class Server implements Runnable {
         hasError = true;
     }
 
-    private static String getPublicIP() throws IOException {
-        URL whatismyip = new URL("http://checkip.amazonaws.com");  //TODO: Don't rely on external source
-        BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
-        return in.readLine();
-    }
-
     private static String getPrivateIP() throws UnknownHostException {
         return InetAddress.getLocalHost().getHostAddress();
-    }
-
-    private static long getByteIP(String address) throws UnknownHostException {
-        InetAddress inetAddress = InetAddress.getByName(address);
-        long result = 0;
-        for (byte b: inetAddress.getAddress())
-        {
-            result = result << 8 | (b & 0xFF);
-        }
-        return result;
     }
 
     class InputHandler implements HttpHandler {
