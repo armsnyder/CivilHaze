@@ -28,8 +28,8 @@ angular.module('comeAgain')
         };
     })
     .factory('RouteResource', function($resource) {
-        //var ROOT = "http://come-again.net";
-        var ROOT = "http://localhost:3000";
+        var ROOT = "http://come-again.net";
+        //var ROOT = "http://localhost:3000";
         return $resource(ROOT+'/api/ip/private', {}, {query: {method: 'GET'}});
     })
     .factory('GameResource', function($resource) {
