@@ -2,14 +2,17 @@ angular.module('comeAgain')
     .controller("MainController", function($scope) {
         $scope.page = "start";
     })
-    .controller("StartController", function($scope, GameRouteService) {
-        $scope.foo = "bars";
-        GameRouteService.getGameIP().then(function(response) {
-            $scope.foo = response;
-            console.log('success: '+response);
+    .controller("StartController", function($scope, $q, GameConnectionService) {
+        GameConnectionService.connect().then(function(response) {
+            console.log(response);
+            $scope.status = "Connected to "+response;
         }, function(error) {
-            console.log(error);  //TODO: Handle Error
+            $scope.status = "Fatal error";
+            console.error(error);
+        }, function(message) {
+            $scope.status = message;
         });
+
     })
     .controller("GameController", function($scope) {
 

@@ -93,7 +93,8 @@ public class Server implements Runnable {
     }
 
     private void updateIpTable() throws IOException {
-        String url = "http://come-again.net/api/ip/private/"+getPrivateIP();
+//        String url = "http://come-again.net/api/ip/private/"+getPrivateIP();
+        String url = "http://localhost:3000/api/ip/private/"+getPrivateIP();
         try {
             String response = Util.executePost(url, "");
             JSONObject o = new JSONObject(response);
@@ -125,6 +126,7 @@ public class Server implements Runnable {
             try {
                 Headers headers = t.getResponseHeaders();
                 headers.add("Content-Type", "application/json");
+                headers.add("Access-Control-Allow-Origin", "*");
                 switch (t.getRequestMethod()) {
                     case "GET":
                         handleGet(t, path);

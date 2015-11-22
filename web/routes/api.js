@@ -34,8 +34,7 @@ exports.getPrivate = function(req, res) {
                     } else {
                         if (rows.length == 0) {
                             err = 'Could not find requested IP';
-                            console.error(err);
-                            res.statusCode = 404;
+                            res.statusCode = 409;
                             res.json({
                                 result: 'error',
                                 error: err
@@ -119,6 +118,7 @@ function getIP(req) {
     if (ips_str) {
         return ips_str.split(',')[0].trim();
     } else {
-        return req.connection.remoteAddress;
+        //return req.connection.remoteAddress;
+        return 'default';
     }
 }
