@@ -22,12 +22,8 @@ import org.json.JSONObject;
 import snyder.adam.Participant;
 import snyder.adam.Util;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
 import java.io.*;
 import java.net.*;
-import java.security.*;
-import java.security.cert.CertificateException;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -40,31 +36,20 @@ public class Server implements Runnable {
     private static final long CLIENT_TIMEOUT = 15000;  // Min interval (in milliseconds) that clients must ping
     private static final long TIMEOUT_INTERVAL = 2000; // Time in milliseconds between checking for timed out clients
     private boolean isRunning = false;
-    private HttpsServer server = null;
+    private HttpServer server = null;
     private final Map<String, Participant> participantMap;
     private final MobileListener listener;
     private boolean hasError = false;
 
-    public Server(Map<String, Participant> participantMap, MobileListener listener, int port) throws IOException,
-            NoSuchAlgorithmException, KeyStoreException, CertificateException, UnrecoverableKeyException,
-            KeyManagementException {
+    public Server(Map<String, Participant> participantMap, MobileListener listener, int port) throws IOException {
         this.participantMap = participantMap;
         this.listener = listener;
         try {
-            server = HttpsServer.create(new InetSocketAddress(InetAddress.getLocalHost(), port), 0);
+            server = HttpServer.create(new InetSocketAddress(InetAddress.getLocalHost(), port), 0);
         } catch (BindException e) {
             listener.onServerFatalError("Address already in use");
             return;
         }
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        char[] keystorePassword = "comeAgainPassword".toCharArray();
-        KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream("clientkeystore.jks"), keystorePassword);
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-        kmf.init(ks, keystorePassword);
-        sslContext.init(kmf.getKeyManagers(), null, null);
-        HttpsConfigurator configurator = new HttpsConfigurator(sslContext);
-        server.setHttpsConfigurator(configurator);
         server.createContext("/", new InputHandler());
         server.setExecutor(null); // creates a default executor
     }
@@ -120,8 +105,8 @@ public class Server implements Runnable {
     }
 
     private void updateIpTable() throws IOException {
-        String url = "https://come-again.net/api/ip/private/"+getPrivateIP();
-//        String url = "https://localhost:3000/api/ip/private/"+getPrivateIP();
+        String url = "http://come-again.net/api/ip/private/"+getPrivateIP();
+//        String url = "http://localhost:3000/api/ip/private/"+getPrivateIP();
         try {
             String response = Util.executePost(url, "");
             JSONObject o = new JSONObject(response);

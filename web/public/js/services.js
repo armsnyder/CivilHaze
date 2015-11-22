@@ -154,8 +154,8 @@ angular.module('comeAgain')
         };
     })
     .factory('RouteResource', function($resource) {
-        //var ROOT = "https://come-again.net";
-        var ROOT = "https://localhost:3000";
+        var ROOT = "http://come-again.net";
+        //var ROOT = "http://localhost:3000";
         return $resource(ROOT+'/api/ip/private', {}, {query: {method: 'GET'}});
     })
     .factory('GameResource', function($resource) {
@@ -168,7 +168,7 @@ angular.module('comeAgain')
             resource: function(ip) {
                 if (!ip && !root) return;
                 if (!ip) ip = root;
-                return $resource('https://'+ip+':'+PORT+'/:a/:b/:c/:d', {}, {
+                return $resource('http://'+ip+':'+PORT+'/:a/:b/:c/:d', {}, {
                     ping: {method: 'GET', params: {a: 'ping'}},
                     connect: {method: 'GET', params: {a: 'connect'}},
                     disconnect: {method: 'GET', params: {a: 'disconnect'}},

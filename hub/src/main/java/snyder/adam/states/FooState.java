@@ -46,8 +46,7 @@ public class FooState extends BasicGameState {
         Server s = null;
         try {
             s = new Server(new HashMap<String, Participant>(), new Listener(), 8000);
-        } catch (IOException | CertificateException | NoSuchAlgorithmException | KeyManagementException |
-                KeyStoreException | UnrecoverableKeyException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         Thread t = new Thread(s);
