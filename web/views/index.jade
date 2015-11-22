@@ -5,7 +5,7 @@ block body
         div(ng-switch="page")
             div(ng-switch-when="start" ng-controller="StartController")
                 div(ng-include="'partials/start.jade'")
-            div(ng-switch-when="game")
+            div(ng-switch-when="game" ng-controller="GameController")
                 div(ng-include="'partials/game.jade'")
             div(ng-switch-when="voting")
                 div(ng-include="'partials/voting.jade'")

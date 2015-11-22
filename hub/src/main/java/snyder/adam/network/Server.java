@@ -127,6 +127,9 @@ public class Server implements Runnable {
                 Headers headers = t.getResponseHeaders();
                 headers.add("Content-Type", "application/json");
                 headers.add("Access-Control-Allow-Origin", "*");
+                headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
+                headers.add("Access-Control-Allow-Headers",
+                        "Content-Type, Authorization, Content-Length, X-Requested-With");
                 switch (t.getRequestMethod()) {
                     case "GET":
                         handleGet(t, path);
@@ -134,6 +137,8 @@ public class Server implements Runnable {
                     case "POST":
                         handlePost(t, path);
                         break;
+                    case "OPTIONS":
+                        respondWithSuccess(t);
                     default:
                         respondWithError(t);
                 }
@@ -277,7 +282,7 @@ public class Server implements Runnable {
         }
 
         private void respondWithError(HttpExchange t) throws IOException {
-            t.sendResponseHeaders(ERROR_CODE, 0);
+            t.sendResponseHeaders(ERROR_CODE, -1);
         }
 
         private void respondWithError(HttpExchange t, String response) throws IOException {
@@ -288,10 +293,11 @@ public class Server implements Runnable {
         }
 
         private void respondWithSuccess(HttpExchange t) throws IOException {
-            t.sendResponseHeaders(SUCCESS_CODE, 0);
+            t.sendResponseHeaders(SUCCESS_CODE, -1);
         }
 
         private void respondWithSuccess(HttpExchange t, String response) throws IOException {
+            if (!response.substring(0, 1).equals("{")) response = "{\"result\": \""+response+"\"}";
             t.sendResponseHeaders(SUCCESS_CODE, response.getBytes().length);
             OutputStream os = t.getResponseBody();
             os.write(response.getBytes());
