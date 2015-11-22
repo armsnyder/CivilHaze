@@ -92,7 +92,7 @@ public class FooState extends BasicGameState {
 
         @Override
         public void onServerStopped() {
-
+            System.out.println("Server stopped");
         }
     }
 }

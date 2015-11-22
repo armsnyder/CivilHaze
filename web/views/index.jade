@@ -1,13 +1,13 @@
 extends layout
 
 block body
-    div(ng-controller="MainController")
+    div(ng-controller="MainController" ng-cancel-events fullscreen)
         div(ng-switch="page")
-            div(ng-switch-when="start" ng-controller="StartController")
+            div(ng-switch-when="start" ng-controller="StartController" id="startPartial")
                 div(ng-include="'partials/start.jade'")
-            div(ng-switch-when="game" ng-controller="GameController")
+            div(ng-switch-when="game" ng-controller="GameController" id="gamePartial")
                 div(ng-include="'partials/game.jade'")
-            div(ng-switch-when="voting")
+            div(ng-switch-when="voting" id="votingPartial")
                 div(ng-include="'partials/voting.jade'")
     script(src='lib/angular/angular.js')
     script(src='lib/angular-resource/angular-resource.js')

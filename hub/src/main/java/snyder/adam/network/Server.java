@@ -48,14 +48,16 @@ public class Server implements Runnable {
     @Override
     public void run() {
         if (server == null) return;
-        server.start();
         try {
             updateIpTable();
         } catch (IOException e) {
             signalError("Failed to read IP");
         }
-        isRunning = true;
-        if (!hasError) listener.onServerReady();
+        if (!hasError) {
+            server.start();
+            isRunning = true;
+            listener.onServerReady();
+        }
         while (isRunning) {
             try {
                 Thread.sleep(TIMEOUT_INTERVAL);
