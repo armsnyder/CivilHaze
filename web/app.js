@@ -36,7 +36,7 @@ var allowCrossDomain = function(req, res, next) {
     }
 };
 
-//app.use(allowCrossDomain);
+app.use(allowCrossDomain);
 app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
