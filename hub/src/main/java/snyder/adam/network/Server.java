@@ -1,20 +1,33 @@
+/*
+ * Come Again is an interactive art piece in which participants perform a series of reckless prison breaks.
+ * Copyright (C) 2015  Adam Snyder
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
+ * version. Any redistribution must give proper attribution to the original author.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
 package snyder.adam.network;
 
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import snyder.adam.Participant;
 import snyder.adam.Util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import java.io.*;
 import java.net.*;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -27,20 +40,31 @@ public class Server implements Runnable {
     private static final long CLIENT_TIMEOUT = 15000;  // Min interval (in milliseconds) that clients must ping
     private static final long TIMEOUT_INTERVAL = 2000; // Time in milliseconds between checking for timed out clients
     private boolean isRunning = false;
-    private HttpServer server = null;
+    private HttpsServer server = null;
     private final Map<String, Participant> participantMap;
     private final MobileListener listener;
     private boolean hasError = false;
 
-    public Server(Map<String, Participant> participantMap, MobileListener listener, int port) throws IOException {
+    public Server(Map<String, Participant> participantMap, MobileListener listener, int port) throws IOException,
+            NoSuchAlgorithmException, KeyStoreException, CertificateException, UnrecoverableKeyException,
+            KeyManagementException {
         this.participantMap = participantMap;
         this.listener = listener;
         try {
-            server = HttpServer.create(new InetSocketAddress(port), 0);
+            server = HttpsServer.create(new InetSocketAddress(InetAddress.getLocalHost(), port), 0);
         } catch (BindException e) {
             listener.onServerFatalError("Address already in use");
             return;
         }
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        char[] keystorePassword = "comeAgainPassword".toCharArray();
+        KeyStore ks = KeyStore.getInstance("JKS");
+        ks.load(new FileInputStream("clientkeystore.jks"), keystorePassword);
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+        kmf.init(ks, keystorePassword);
+        sslContext.init(kmf.getKeyManagers(), null, null);
+        HttpsConfigurator configurator = new HttpsConfigurator(sslContext);
+        server.setHttpsConfigurator(configurator);
         server.createContext("/", new InputHandler());
         server.setExecutor(null); // creates a default executor
     }
@@ -51,6 +75,7 @@ public class Server implements Runnable {
         try {
             updateIpTable();
         } catch (IOException e) {
+            e.printStackTrace();
             signalError("Failed to read IP");
         }
         if (!hasError) {
@@ -95,8 +120,8 @@ public class Server implements Runnable {
     }
 
     private void updateIpTable() throws IOException {
-//        String url = "http://come-again.net/api/ip/private/"+getPrivateIP();
-        String url = "http://localhost:3000/api/ip/private/"+getPrivateIP();
+        String url = "https://come-again.net/api/ip/private/"+getPrivateIP();
+//        String url = "https://localhost:3000/api/ip/private/"+getPrivateIP();
         try {
             String response = Util.executePost(url, "");
             JSONObject o = new JSONObject(response);

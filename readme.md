@@ -15,3 +15,16 @@ finished.
 4. Open the iaHub2.fla file and run the movie with command+Enter.
 5. Wait until all players have entered their name in the mobile app and clicked the “Play” button.
 6. Once everyone has connected, click the screen to start.
+
+### License
+Copyright (C) 2015  Adam Snyder
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+License as published by the Free Software Foundation, version 3. Any redistribution must give proper attribution to
+the original author.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see
+<http://www.gnu.org/licenses/>.

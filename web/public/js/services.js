@@ -1,3 +1,18 @@
+/*
+ * Come Again is an interactive art piece in which participants perform a series of reckless prison breaks.
+ * Copyright (C) 2015  Adam Snyder
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
+ * version. Any redistribution must give proper attribution to the original author.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
 'use strict';
 
 angular.module('comeAgain')
@@ -139,8 +154,8 @@ angular.module('comeAgain')
         };
     })
     .factory('RouteResource', function($resource) {
-        var ROOT = "http://www.come-again.net";
-        //var ROOT = "http://localhost:3000";
+        //var ROOT = "https://come-again.net";
+        var ROOT = "https://localhost:3000";
         return $resource(ROOT+'/api/ip/private', {}, {query: {method: 'GET'}});
     })
     .factory('GameResource', function($resource) {
@@ -153,7 +168,7 @@ angular.module('comeAgain')
             resource: function(ip) {
                 if (!ip && !root) return;
                 if (!ip) ip = root;
-                return $resource('http://'+ip+':'+PORT+'/:a/:b/:c/:d', {}, {
+                return $resource('https://'+ip+':'+PORT+'/:a/:b/:c/:d', {}, {
                     ping: {method: 'GET', params: {a: 'ping'}},
                     connect: {method: 'GET', params: {a: 'connect'}},
                     disconnect: {method: 'GET', params: {a: 'disconnect'}},
