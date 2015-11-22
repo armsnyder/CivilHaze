@@ -51,6 +51,14 @@ var allowCrossDomain = function(req, res, next) {
     }
 };
 
+app.use(function(req, res, next) {
+    if((!req.secure) && (req.get('X-Forwarded-Proto') !== 'https')) {
+        res.redirect('https://' + req.get('Host') + req.url);
+    }
+    else
+        next();
+});
+
 app.use(allowCrossDomain);
 app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 app.use(logger('dev'));
