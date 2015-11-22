@@ -28,7 +28,7 @@ public class GameState extends BasicGameState {
 
     @Override
     public int getID() {
-        return State.GAME.getValue();
+        return 0;
     }
 
     public void init(GameContainer container, StateBasedGame stateBasedGame) throws SlickException {

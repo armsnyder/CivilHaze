@@ -15,9 +15,7 @@
 
 package snyder.adam.states;
 
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 import snyder.adam.Participant;
@@ -25,21 +23,21 @@ import snyder.adam.network.MobileListener;
 import snyder.adam.network.Server;
 
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Flame
  */
 public class FooState extends BasicGameState {
 
+    Map<String, Boolean> keyStates = new HashMap<>();
+    float posX = 100;
+    float posY = 100;
+
     @Override
     public int getID() {
-        return State.FOO.getValue();
+        return 1;
     }
 
     public void init(GameContainer container, StateBasedGame stateBasedGame) throws SlickException {
@@ -54,24 +52,32 @@ public class FooState extends BasicGameState {
     }
 
     public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
-
+        g.setColor(Color.blue);
+        g.fillOval((int)posX, (int)posY, 50, 50);
     }
 
     public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
-
+        float scale = 0.2f;
+        float incX = 0;
+        float incY = 0;
+        if (keyStates.containsKey("up") && keyStates.get("up")) incY -= 1;
+        if (keyStates.containsKey("down") && keyStates.get("down")) incY += 1;
+        if (keyStates.containsKey("left") && keyStates.get("left")) incX -= 1;
+        if (keyStates.containsKey("right") && keyStates.get("right")) incX += 1;
+        posX += incX * i * scale;
+        posY += incY * i * scale;
     }
 
     class Listener implements MobileListener {
 
         @Override
         public void onButtonPress(Participant participant, String button) {
-            System.out.println(participant+" pressed "+button);
+            keyStates.put(button, true);
         }
 
         @Override
         public void onButtonRelease(Participant participant, String button) {
-            System.out.println(participant+" released "+button);
-
+            keyStates.put(button, false);
         }
 
         @Override
@@ -96,8 +102,6 @@ public class FooState extends BasicGameState {
 
         @Override
         public void onPing(Participant participant) {
-            System.out.println("ping from "+participant);
-
         }
 
         @Override

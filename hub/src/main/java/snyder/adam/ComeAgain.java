@@ -60,6 +60,7 @@ public class ComeAgain extends StateBasedGame {
         container.setVSync(V_SYNC);
 
         this.addState(new FooState());
+        this.enterState(1);
     }
     
     public static void main(String[] args) throws SlickException {
