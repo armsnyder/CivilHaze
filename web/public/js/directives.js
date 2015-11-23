@@ -13,25 +13,27 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+'use strict';
+
 angular.module('comeAgain')
-    .directive('ngTouchend', [function() {
-        return function(scope, element, attr) {
-            element.on('touchend', function(event) {
-                scope.$apply(function() {
-                    scope.$eval(attr.ngTouchend);
-                });
-            });
-        };
-    }])
-    .directive('ngTouchstart', [function() {
-        return function(scope, element, attr) {
-            element.on('touchstart', function(event) {
-                scope.$apply(function() {
-                    scope.$eval(attr.ngTouchstart);
-                });
-            });
-        };
-    }])
+    //.directive('ngTouchend', [function() {
+    //    return function(scope, element, attr) {
+    //        element.on('touchend', function(event) {
+    //            scope.$apply(function() {
+    //                scope.$eval(attr.ngTouchend);
+    //            });
+    //        });
+    //    };
+    //}])
+    //.directive('ngTouchstart', [function() {
+    //    return function(scope, element, attr) {
+    //        element.on('touchstart', function(event) {
+    //            scope.$apply(function() {
+    //                scope.$eval(attr.ngTouchstart);
+    //            });
+    //        });
+    //    };
+    //}])
     .directive('ngCancelEvents', function() {
         return function(scope, element, attr) {
             element.on('touchstart', function(event) {
@@ -40,5 +42,50 @@ angular.module('comeAgain')
                 event.cancelBubble = true;
                 event.returnValue = false;
             })
+        }
+    })
+    .directive('ngJoystick', function(ControllerService) {
+        return {
+            //templateUrl: 'partials/joystick',
+            //scope: {
+            //    joystick: '='
+            //},
+            link: function(scope, element, attrs) {
+                var lastSent = {angle: 0, magnitude: 0};
+                var start = {x: 0, y: 0};
+                var end = {x: 0, y: 0};
+                var on = false;
+                function getCoords(event) {
+                    return {x: event.touches[0].clientX, y: event.touches[0].clientY};
+                }
+                function maybeSend() {
+                    var magnitude = Math.sqrt(Math.pow(end.x-start.x, 2)+Math.pow(end.y-start.y, 2));
+                    var angle = Math.atan2(end.y-start.y, end.x-start.x);
+                    if (Math.abs(magnitude-lastSent.magnitude) > 10 || Math.abs(angle-lastSent.angle) > 0.2) {
+                        send({angle: angle, magnitude: magnitude});
+                    }
+                }
+                function send(input) {
+                    ControllerService.joystick(input);
+                    lastSent = input;
+                }
+                element.on('touchstart', function(event) {
+                    on = true;
+                    start = getCoords(event);
+                    end = getCoords(event);
+                });
+                element.on('touchmove', function(event) {
+                    end = getCoords(event);
+                    maybeSend();
+                });
+                element.on('touchend', function(event) {
+                    on = false;
+                    send({angle: 0, magnitude: 0});
+                });
+
+            }
+            //controller: function($scope) {
+            //
+            //}
         }
     });

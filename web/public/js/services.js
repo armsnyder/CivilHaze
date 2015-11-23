@@ -59,6 +59,10 @@ angular.module('comeAgain')
                 retry = {fn: factory.buttonOff, arg: button};
                 GameResource.resource().buttonOff({button: button}).$promise.then(conSuccess, conError);
             },
+            joystick: function(input) {
+                retry = {fn: factory.joystick, arg: input};
+                GameResource.resource().joystick(input).$promise.then(conSuccess, conError);
+            },
             vote: function(participants) {
                 retry = {fn: factory.vote, arg: participants};
                 GameResource.resource()({participants: participants}).vote().$promise.then(conSuccess, conError);
@@ -174,6 +178,7 @@ angular.module('comeAgain')
                     disconnect: {method: 'GET', params: {a: 'disconnect'}},
                     buttonOn: {method: 'POST', params: {a: 'input', b: 'button', c: '@button', d: 'on'}},
                     buttonOff: {method: 'POST', params: {a: 'input', b: 'button', c: '@button', d: 'off'}},
+                    joystick: {method: 'POST', params: {a: 'input', b: 'joystick'}},
                     vote: {method: 'POST', params: {a: 'input', b: 'vote'}},
                     getParticipants: {method: 'GET', params: {a: 'participants'}}
                 })

@@ -13,7 +13,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-angular.module('comeAgain', ['ngResource']);
+angular.module('comeAgain', ['ngResource', 'ngTouch']);
     //.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
     //    $routeProvider
     //        .when('/', {

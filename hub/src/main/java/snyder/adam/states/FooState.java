@@ -23,8 +23,7 @@ import snyder.adam.network.MobileListener;
 import snyder.adam.network.Server;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Flame
@@ -32,8 +31,9 @@ import java.util.Map;
 public class FooState extends BasicGameState {
 
     Map<String, Boolean> keyStates = new HashMap<>();
-    float posX = 100;
-    float posY = 100;
+    Map<Participant, PlayerDot> players = new HashMap<>();
+    LinkedList<Color> availColors = new LinkedList<>(Arrays.asList(Color.blue, Color.green, Color.magenta,
+            Color.orange, Color.yellow, Color.white));
 
     @Override
     public int getID() {
@@ -52,20 +52,26 @@ public class FooState extends BasicGameState {
     }
 
     public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
-        g.setColor(Color.blue);
-        g.fillOval((int)posX, (int)posY, 50, 50);
+        for (PlayerDot d : players.values()) {
+            g.setColor(d.color);
+            g.fillOval(d.x, d.y, 50, 50);
+        }
     }
 
     public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
-        float scale = 0.2f;
-        float incX = 0;
-        float incY = 0;
-        if (keyStates.containsKey("up") && keyStates.get("up")) incY -= 1;
-        if (keyStates.containsKey("down") && keyStates.get("down")) incY += 1;
-        if (keyStates.containsKey("left") && keyStates.get("left")) incX -= 1;
-        if (keyStates.containsKey("right") && keyStates.get("right")) incX += 1;
-        posX += incX * i * scale;
-        posY += incY * i * scale;
+        float scale = 0.05f;
+        for (PlayerDot d : players.values()) {
+            d.x += Math.cos(d.angle)*d.magnitude * scale;
+            d.y += Math.sin(d.angle)*d.magnitude * scale;
+        }
+    }
+
+    class PlayerDot {
+        Color color = Color.black;
+        int x = 500;
+        int y = 500;
+        double angle = 0;
+        double magnitude = 0;
     }
 
     class Listener implements MobileListener {
@@ -81,6 +87,17 @@ public class FooState extends BasicGameState {
         }
 
         @Override
+        public void onJoystickInput(Participant participant, double angle, double magnitude) {
+            if (!players.containsKey(participant)) {
+                PlayerDot newPlayer = new PlayerDot();
+                newPlayer.color = availColors.pop();
+                players.put(participant, newPlayer);
+            }
+            players.get(participant).angle = angle;
+            players.get(participant).magnitude = magnitude;
+        }
+
+        @Override
         public void onVote(Participant participant, String[] votedFor) {
             System.out.println("vote from "+participant);
             for (String vote : votedFor) {
@@ -91,7 +108,9 @@ public class FooState extends BasicGameState {
         @Override
         public void onConnect(Participant participant) {
             System.out.println("connected "+participant);
-
+            PlayerDot newPlayer = new PlayerDot();
+            newPlayer.color = availColors.pop();
+            players.put(participant, newPlayer);
         }
 
         @Override

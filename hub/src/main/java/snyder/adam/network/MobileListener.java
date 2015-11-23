@@ -27,6 +27,8 @@ public interface MobileListener {
 
     void onButtonRelease(Participant participant, String button);
 
+    void onJoystickInput(Participant participant, double angle, double magnitude);
+
     void onVote(Participant participant, String[] votedFor);
 
     void onConnect(Participant participant);

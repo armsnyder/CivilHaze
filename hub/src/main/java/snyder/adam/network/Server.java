@@ -249,6 +249,9 @@ public class Server implements Runnable {
                         case "button":
                             handleButton(t, path, participantId);
                             break;
+                        case "joystick":
+                            handleJoystick(t, participantId);
+                            break;
                         case "vote":
                             handleVote(t, participantId);
                             break;
@@ -258,6 +261,21 @@ public class Server implements Runnable {
                 } else {
                     respondWithError(t);
                 }
+            }
+        }
+
+        private void handleJoystick(HttpExchange t, String participantId) throws IOException {
+            JSONObject input = new JSONObject(Util.getStringFromInputStream(t.getRequestBody()));
+            if (input.has("angle") && input.has("magnitude")) {
+                try {
+                    listener.onJoystickInput(participantMap.get(participantId), input.getDouble("angle"),
+                            input.getDouble("magnitude"));
+                    respondWithSuccess(t);
+                } catch (JSONException e) {
+                    respondWithError(t, "invalid input");
+                }
+            } else {
+                respondWithError(t, "invalid input");
             }
         }
 
