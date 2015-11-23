@@ -20,8 +20,10 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 import snyder.adam.Entity;
 import snyder.adam.Participant;
+import snyder.adam.Util;
 import snyder.adam.network.MobileListener;
 import snyder.adam.network.Server;
+import snyder.adam.util.RotationalDistance;
 
 import java.io.IOException;
 import java.util.*;
@@ -64,42 +66,71 @@ public class FooState extends BasicGameState {
         }
     }
 
-    class PlayerDot extends Entity {
+    class PlayerDot implements Entity {
         Color color = Color.black;
         double x = 500;
         double y = 500;
-        double angle = 0;
-        double magnitude = 0;
+        double desiredAngle = 0;
+        double desiredMagnitude = 0;
         double speed = 0;
-        double acceleration = .003;
-        double deceleration = .005;
+        double acceleration = .01;
+        double deceleration = .006;
+        double angle = 0;
+        double angularAcceleration = 0.1;
+        float width = 50;
+        float height = 50;
 
         @Override
         public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
             g.setColor(color);
-            g.fillOval((int)x, (int)y, 50, 50);
+            g.fillOval((int)x, (int)y, width, height);
         }
 
         @Override
         public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
             float scale = .5f;
-            if (speed > magnitude) {
+            if (speed > desiredMagnitude) {
                 double deltaSpeed = deceleration * i;
-                if (deltaSpeed > speed-magnitude) {
-                    speed = magnitude;
+                if (deltaSpeed > speed - desiredMagnitude) {
+                    speed = desiredMagnitude;
                 } else {
                     speed -= deltaSpeed;
                 }
             } else {
                 double deltaSpeed = acceleration*i;
-                if (deltaSpeed > magnitude-speed) {
-                    speed = magnitude;
+                if (deltaSpeed > desiredMagnitude - speed) {
+                    speed = desiredMagnitude;
                 } else {
                     speed += deltaSpeed;
                 }
             }
-            x += Math.cos(angle) * speed * scale * i;
-            y += Math.sin(angle) * speed * scale * i;
+            double deltaAngle = angularAcceleration * i;
+            RotationalDistance remainingAngle = new RotationalDistance(angle, desiredAngle);
+            if (remainingAngle.distance < deltaAngle) {
+                angle = desiredAngle;
+            } else {
+                if (remainingAngle.direction) {
+                    angle = angle - deltaAngle;
+                } else {
+                    angle = angle + deltaAngle;
+                }
+                if (angle > Math.PI) {
+                    angle -= 2*Math.PI;
+                }
+                if (angle < -Math.PI) {
+                    angle += 2*Math.PI;
+                }
+            }
+            double deltaX = Math.cos(angle) * speed * scale * i;
+            double deltaY = Math.sin(angle) * speed * scale * i;
+            x += deltaX;
+            y += deltaY;
+            if (y > container.getHeight()-height || y < 0) {
+                y -= deltaY;
+            }
+            if (x > container.getWidth()-width || x < 0) {
+                x -= deltaX;
+            }
         }
     }
 
@@ -122,8 +153,9 @@ public class FooState extends BasicGameState {
                 newPlayer.color = availColors.pop();
                 players.put(participant, newPlayer);
             }
-            players.get(participant).angle = angle;
-            players.get(participant).magnitude = magnitude;
+            if (players.get(participant).speed == 0) players.get(participant).angle = angle;
+            players.get(participant).desiredAngle = angle;
+            players.get(participant).desiredMagnitude = magnitude;
         }
 
         @Override

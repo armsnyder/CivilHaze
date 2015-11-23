@@ -5,9 +5,9 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 
-public abstract class Entity {
+public interface Entity {
 
-    public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {}
+    void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException;
 
-    public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {}
+    void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException;
 }
