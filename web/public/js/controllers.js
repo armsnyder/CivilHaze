@@ -39,6 +39,7 @@ angular.module('comeAgain')
     })
     .controller("GameController", function($scope, ControllerService, GameConnectionService) {
         GameConnectionService.registerDisconnectCallback(onDisconnect);
+        $scope.desiredRotation = 'horizontal';
         $scope.buttonOn = function(button) {
             ControllerService.buttonOn(button);
         };

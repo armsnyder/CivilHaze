@@ -46,23 +46,27 @@ angular.module('comeAgain')
     })
     .directive('ngJoystick', function(ControllerService) {
         return {
-            //templateUrl: 'partials/joystick',
-            //scope: {
-            //    joystick: '='
-            //},
-            link: function(scope, element, attrs) {
+            scope: {
+                numAngles: '=',
+                numMagnitude: '=',
+                radius: '='
+            },
+            link: function(scope, element) {
                 var lastSent = {angle: 0, magnitude: 0};
                 var start = {x: 0, y: 0};
                 var end = {x: 0, y: 0};
-                var on = false;
                 function getCoords(event) {
                     return {x: event.touches[0].clientX, y: event.touches[0].clientY};
                 }
                 function maybeSend() {
                     var magnitude = Math.sqrt(Math.pow(end.x-start.x, 2)+Math.pow(end.y-start.y, 2));
+                    if (magnitude > scope.radius) magnitude = scope.radius;
+                    magnitude /= scope.radius;
+                    var snapMagnitude = Math.round(magnitude * scope.numMagnitude) / scope.numMagnitude;
                     var angle = Math.atan2(end.y-start.y, end.x-start.x);
-                    if (Math.abs(magnitude-lastSent.magnitude) > 10 || Math.abs(angle-lastSent.angle) > 0.2) {
-                        send({angle: angle, magnitude: magnitude});
+                    var snapAngle = Math.round(angle / Math.PI * scope.numAngles / 2) / scope.numAngles * Math.PI * 2;
+                    if (lastSent.angle !== snapAngle || lastSent.magnitude !== snapMagnitude) {
+                        send({angle: snapAngle, magnitude: snapMagnitude});
                     }
                 }
                 function send(input) {
@@ -70,7 +74,6 @@ angular.module('comeAgain')
                     lastSent = input;
                 }
                 element.on('touchstart', function(event) {
-                    on = true;
                     start = getCoords(event);
                     end = getCoords(event);
                 });
@@ -78,14 +81,46 @@ angular.module('comeAgain')
                     end = getCoords(event);
                     maybeSend();
                 });
-                element.on('touchend', function(event) {
-                    on = false;
-                    send({angle: 0, magnitude: 0});
+                element.on('touchend', function() {
+                    send({angle: lastSent.angle, magnitude: 0});
                 });
 
             }
-            //controller: function($scope) {
-            //
-            //}
+        }
+    })
+    .directive('ngCorrectRotation', function() {
+        return {
+            transclude: true,
+            templateUrl: 'partials/correctRotation',
+            link: function(scope, element, attrs) {
+                var desiredRotation = 'vertical';
+                var actualRotation = 'vertical';
+                function evaluateRotation() {
+                    scope.showTransclude = desiredRotation === actualRotation;
+                }
+                function applyOrientation() {
+                    switch(window.orientation) {
+                        case 90:
+                        case -90:
+                            actualRotation = 'horizontal';
+                            break;
+                        case 180:
+                        case 0:
+                        default:
+                            actualRotation = 'vertical';
+                            break;
+                    }
+                }
+                window.onorientationchange = function() {
+                    applyOrientation();
+                    evaluateRotation();
+                };
+                scope.showTransclude = true;
+                scope.$watch(attrs.ngCorrectRotation, function(value) {
+                    desiredRotation = value;
+                    evaluateRotation();
+                });
+                applyOrientation();
+            }
         }
     });

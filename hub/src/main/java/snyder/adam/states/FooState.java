@@ -18,6 +18,7 @@ package snyder.adam.states;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
+import snyder.adam.Entity;
 import snyder.adam.Participant;
 import snyder.adam.network.MobileListener;
 import snyder.adam.network.Server;
@@ -53,25 +54,53 @@ public class FooState extends BasicGameState {
 
     public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
         for (PlayerDot d : players.values()) {
-            g.setColor(d.color);
-            g.fillOval(d.x, d.y, 50, 50);
+            d.render(container, stateBasedGame, g);
         }
     }
 
     public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
-        float scale = 0.05f;
         for (PlayerDot d : players.values()) {
-            d.x += Math.cos(d.angle)*d.magnitude * scale;
-            d.y += Math.sin(d.angle)*d.magnitude * scale;
+            d.update(container, stateBasedGame, i);
         }
     }
 
-    class PlayerDot {
+    class PlayerDot extends Entity {
         Color color = Color.black;
-        int x = 500;
-        int y = 500;
+        double x = 500;
+        double y = 500;
         double angle = 0;
         double magnitude = 0;
+        double speed = 0;
+        double acceleration = .003;
+        double deceleration = .005;
+
+        @Override
+        public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
+            g.setColor(color);
+            g.fillOval((int)x, (int)y, 50, 50);
+        }
+
+        @Override
+        public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
+            float scale = .5f;
+            if (speed > magnitude) {
+                double deltaSpeed = deceleration * i;
+                if (deltaSpeed > speed-magnitude) {
+                    speed = magnitude;
+                } else {
+                    speed -= deltaSpeed;
+                }
+            } else {
+                double deltaSpeed = acceleration*i;
+                if (deltaSpeed > magnitude-speed) {
+                    speed = magnitude;
+                } else {
+                    speed += deltaSpeed;
+                }
+            }
+            x += Math.cos(angle) * speed * scale * i;
+            y += Math.sin(angle) * speed * scale * i;
+        }
     }
 
     class Listener implements MobileListener {
@@ -116,7 +145,8 @@ public class FooState extends BasicGameState {
         @Override
         public void onDisconnect(Participant participant) {
             System.out.println("disconnect "+participant);
-
+            availColors.push(players.get(participant).color);
+            players.remove(participant);
         }
 
         @Override
