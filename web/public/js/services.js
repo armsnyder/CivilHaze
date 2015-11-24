@@ -38,7 +38,13 @@ angular.module('comeAgain')
         var MAX_FAILED_CONNECTIONS = 3;
         var badConnectionCount = 0;
         var retry;
+        var openRequests = 0;
+        var lastJoystickInput;
         function conSuccess() {
+            openRequests--;
+            if (openRequests > 0 && lastJoystickInput.magnitude==0) {
+                factory.joystick(lastJoystickInput);
+            }
             badConnectionCount = 0;
         }
         function conError(error) {
@@ -61,7 +67,9 @@ angular.module('comeAgain')
             },
             joystick: function(input) {
                 retry = {fn: factory.joystick, arg: input};
+                lastJoystickInput = input;
                 GameResource.resource().joystick(input).$promise.then(conSuccess, conError);
+                openRequests++;
             },
             vote: function(participants) {
                 retry = {fn: factory.vote, arg: participants};

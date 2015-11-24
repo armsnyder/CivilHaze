@@ -76,7 +76,7 @@ public class FooState extends BasicGameState {
         double acceleration = .01;
         double deceleration = .006;
         double angle = 0;
-        double angularAcceleration = 0.1;
+        double angularAcceleration = 0.05;
         float width = 50;
         float height = 50;
 
