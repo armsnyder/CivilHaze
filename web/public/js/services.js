@@ -42,9 +42,9 @@ angular.module('comeAgain')
         var lastJoystickInput;
         function conSuccess() {
             openRequests--;
-            if (openRequests > 0 && lastJoystickInput.magnitude==0) {
-                factory.joystick(lastJoystickInput);
-            }
+            //if (openRequests > 0 && lastJoystickInput.magnitude==0) {
+            //    factory.joystick(lastJoystickInput);
+            //}
             badConnectionCount = 0;
         }
         function conError(error) {

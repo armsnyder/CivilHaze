@@ -37,6 +37,8 @@ public class FooState extends BasicGameState {
     Map<Participant, PlayerDot> players = new HashMap<>();
     LinkedList<Color> availColors = new LinkedList<>(Arrays.asList(Color.blue, Color.green, Color.magenta,
             Color.orange, Color.yellow, Color.white));
+    Music intro;
+    Music loop;
 
     @Override
     public int getID() {
@@ -134,11 +136,40 @@ public class FooState extends BasicGameState {
         }
     }
 
+    class MListener implements MusicListener {
+
+        @Override
+        public void musicEnded(Music music) {
+            loop.loop();
+        }
+
+        @Override
+        public void musicSwapped(Music music, Music newMusic) {
+
+        }
+    }
+
     class Listener implements MobileListener {
 
         @Override
         public void onButtonPress(Participant participant, String button) {
             keyStates.put(button, true);
+            try {
+                loop = new Music("music/"+button+"_loop.ogg");
+            } catch (SlickException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (button.equalsIgnoreCase("happy_man")) {
+                    loop.loop();
+                } else {
+                    intro = new Music("music/" + button + "_intro.ogg");
+                    intro.addListener(new MListener());
+                    intro.play();
+                }
+            } catch (SlickException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
