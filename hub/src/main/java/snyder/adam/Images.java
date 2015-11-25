@@ -16,24 +16,17 @@
 package snyder.adam;
 
 
-import org.newdawn.slick.Color;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.SpriteSheet;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class Images {
-    public static MySpriteSheetFont text;
+    public static ScaledSpriteSheetFont text;
     private static boolean preloaded = false;
-    private static boolean loaded = false;
+//    private static boolean loaded = false;
 
     public static void preload() throws SlickException {
         if (!preloaded) {
-            Map<Color, SpriteSheet> textSheets = new HashMap<>();
-            textSheets.put(Color.white, new SpriteSheet("images/fontWhite.png", 5, 9, 1));
-            textSheets.put(Color.black, new SpriteSheet("images/fontBlack.png", 5, 9, 1));
-            text = new MySpriteSheetFont(textSheets, ' ');
+            text = new ScaledSpriteSheetFont(new SpriteSheet("images/fontBlocky.png", 5, 9, 1), ' ');
             preloaded = true;
         }
     }

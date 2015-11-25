@@ -16,51 +16,35 @@
 package snyder.adam;
 
 import org.newdawn.slick.Color;
-import org.newdawn.slick.Font;
 import org.newdawn.slick.SpriteSheet;
+import org.newdawn.slick.SpriteSheetFont;
 import org.newdawn.slick.util.Log;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
 
-public class MySpriteSheetFont implements Font {
-    private Map<Color, SpriteSheet> font;
-    private Color defaultColor;
+public class ScaledSpriteSheetFont extends SpriteSheetFont {
+    private SpriteSheet font;
     private char startingCharacter;
     private int charWidth;
-    private int charHeight;
+//    private int charHeight;
     private int horizontalCount;
     private int numChars;
     private int size = 1;
     private static final float SCALE = 0.005f;
 
-    public MySpriteSheetFont(Map<Color, SpriteSheet> font, char startingCharacter) {
+    public ScaledSpriteSheetFont(SpriteSheet font, char startingCharacter) {
+        super(font, startingCharacter);
         this.font = font;
-        if (font.containsKey(Color.black)) {
-            this.defaultColor = Color.black;
-        } else {
-            this.defaultColor = (Color) font.keySet().toArray()[0];
-        }
-        SpriteSheet defaultSprite = font.get(defaultColor);
         this.startingCharacter = startingCharacter;
-        this.horizontalCount = font.get(defaultColor).getHorizontalCount();
-        int verticalCount = defaultSprite.getVerticalCount();
-        this.charWidth = defaultSprite.getWidth() / this.horizontalCount;
-        this.charHeight = defaultSprite.getHeight() / verticalCount;
+        this.horizontalCount = font.getHorizontalCount();
+        int verticalCount = font.getVerticalCount();
+        this.charWidth = font.getWidth() / this.horizontalCount;
+//        this.charHeight = font.getHeight() / verticalCount;
         this.numChars = this.horizontalCount * verticalCount;
-    }
-
-    public void drawString(float x, float y, String text) {
-        this.drawString(x, y, text, defaultColor);
-    }
-
-    public void drawString(float x, float y, String text, Color col) {
-        this.drawString(x, y, text, col, 0, text.length() - 1);
     }
 
     @Override
     public void drawString(float x, float y, String text, Color col, int startIndex, int endIndex) {
-        if (!font.containsKey(col)) col = defaultColor;
         try {
             byte[] e = text.getBytes("US-ASCII");
 
@@ -71,14 +55,13 @@ public class MySpriteSheetFont implements Font {
                     int yPos = index / this.horizontalCount;
                     if(i >= startIndex && i <= endIndex) {
                         float scale = getScale();
-                        this.font.get(col).getSprite(xPos, yPos).draw(x + (i * this.charWidth * scale), y, scale);
+                        this.font.getSprite(xPos, yPos).draw(x + (i * this.charWidth * scale), y, scale, col);
                     }
                 }
             }
         } catch (UnsupportedEncodingException var12) {
             Log.error(var12);
         }
-
     }
 
     private float getScale() {
@@ -86,19 +69,18 @@ public class MySpriteSheetFont implements Font {
     }
 
     public int getHeight(String text) {
-        return (int) (this.charHeight * getScale());
+        return (int) (super.getHeight(text) * getScale());
     }
 
     public int getWidth(String text) {
-        return (int) (this.charWidth * text.length() * getScale());
+        return (int) (super.getWidth(text) * getScale());
     }
 
     public int getLineHeight() {
-        return this.charHeight;
+        return (int) (super.getLineHeight() * getScale());
     }
 
     public void setSize(int size) {
         this.size = size;
     }
-
 }
