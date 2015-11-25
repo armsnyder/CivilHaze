@@ -25,6 +25,7 @@ import java.util.Comparator;
  */
 public class Resolution implements Comparable<Resolution> {
     public static final Resolution[] supportedResolutions;
+    public static Resolution selected;
     static {
         ArrayList<Resolution> resolutions = new ArrayList<>();
 
@@ -108,6 +109,10 @@ public class Resolution implements Comparable<Resolution> {
             }
         }
         return supportedResolutions[0];
+    }
+
+    public static void select(Resolution resolution) {
+        selected = resolution;
     }
 
     private static class CompareRatio implements Comparator<Resolution> {

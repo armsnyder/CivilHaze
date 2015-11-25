@@ -3,8 +3,8 @@
  * Copyright (C) 2015  Adam Snyder
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
- * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
- * version. Any redistribution must give proper attribution to the original author.
+ * License as published by the Free Software Foundation, version 3. Any redistribution must give proper attribution to
+ * the original author.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -20,28 +20,36 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
+import snyder.adam.Soundtrack;
 
-/**
- * @author Flame
- */
-public class GameState extends BasicGameState {
 
-    public static final int ID = 0;
+public class CellLobbyState extends BasicGameState {
+
+    public static final int ID = 4;
 
     @Override
     public int getID() {
         return ID;
     }
 
-    public void init(GameContainer container, StateBasedGame stateBasedGame) throws SlickException {
+    @Override
+    public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
 
     }
 
-    public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
+    @Override
+    public void render(GameContainer gameContainer, StateBasedGame stateBasedGame, Graphics graphics) throws SlickException {
 
     }
 
-    public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
+    @Override
+    public void update(GameContainer gameContainer, StateBasedGame stateBasedGame, int i) throws SlickException {
 
+    }
+
+    @Override
+    public void enter(GameContainer container, StateBasedGame game) throws SlickException {
+        Soundtrack.cell.play();
+        super.enter(container, game);
     }
 }

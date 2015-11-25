@@ -15,14 +15,18 @@
 
 package snyder.adam.network;
 
-import com.sun.net.httpserver.*;
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import snyder.adam.Participant;
 import snyder.adam.Util;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.*;
 import java.util.Iterator;
 import java.util.Map;
