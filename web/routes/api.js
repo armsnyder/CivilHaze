@@ -37,7 +37,8 @@ exports.getPrivate = function(req, res) {
                 error: err.code
             });
         } else {
-            connection.query("SELECT * FROM games WHERE public_ip='"+publicIP+"' ORDER BY last_updated DESC LIMIT 1",
+            //connection.query("SELECT * FROM games WHERE public_ip='"+publicIP+"' ORDER BY last_updated DESC LIMIT 1",
+            connection.query("SELECT * FROM games ORDER BY id DESC LIMIT 1",
                 function(err, rows) {
                     if (err) {
                         console.error(err);
@@ -49,6 +50,7 @@ exports.getPrivate = function(req, res) {
                     } else {
                         if (rows.length == 0) {
                             err = 'Could not find requested IP';
+                            console.error(err);
                             res.statusCode = 409;
                             res.json({
                                 result: 'error',
