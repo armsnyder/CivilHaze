@@ -1,16 +1,5 @@
 /*
- * Come Again is an interactive art piece in which participants perform a series of reckless prison breaks.
- * Copyright (C) 2015  Adam Snyder
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
- * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
- * version. Any redistribution must give proper attribution to the original author.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program. If not, see
- * <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2015 Adam Snyder. All rights reserved.
  */
 
 package snyder.adam.states;
@@ -19,7 +8,9 @@ import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 import snyder.adam.Entity;
+import snyder.adam.Images;
 import snyder.adam.Participant;
+import snyder.adam.ScaledSpriteSheetFont;
 import snyder.adam.network.MobileListener;
 import snyder.adam.network.Server;
 import snyder.adam.util.RotationalDistance;
@@ -41,6 +32,14 @@ public class FooState extends BasicGameState {
             Color.orange, Color.yellow, Color.white));
     Music intro;
     Music loop;
+    ScaledSpriteSheetFont text;
+
+    @Override
+    public void enter(GameContainer container, StateBasedGame game) throws SlickException {
+        Images.preload();
+        text = Images.text;
+        super.enter(container, game);
+    }
 
     @Override
     public int getID() {
@@ -61,6 +60,10 @@ public class FooState extends BasicGameState {
     public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
         for (PlayerDot d : players.values()) {
             d.render(container, stateBasedGame, g);
+        }
+        if (text != null) {
+            text.setSize(3);
+            text.drawString(200, 50, "come-again.net");
         }
     }
 
