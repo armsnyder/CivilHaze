@@ -6,7 +6,7 @@ package snyder.adam.util;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by flame on 11/23/15.

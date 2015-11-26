@@ -10,10 +10,8 @@ import org.newdawn.slick.SlickException;
 
 public class Soundtrack {
 
-    private final Music[] segments;
-    private final boolean autoLoop; // Automatically loop the last segment of music
-    private int nowPlaying = -1;
-    private int queued = -1;
+    private final Music music;
+    private final float[] segments;
 
     // Pre-loaded songs:
     public static Soundtrack mainTheme;
@@ -23,30 +21,28 @@ public class Soundtrack {
      * Loads all the game's music. Must be called before any music can be played.
      */
     public static void load() {
-        mainTheme = new Soundtrack(new String[]{"music/Main_Theme_intro_1.ogg", "music/Main_Theme_intro_2.ogg",
-                "music/Main_Theme_loop.ogg"}, true);
-        cell = new Soundtrack(new String[]{"music/cell_intro.ogg", "music/cell_loop.ogg"}, true);
+        mainTheme = new Soundtrack("music/Main_Theme.ogg", new float[]{0, 10.158f, 24.381f});
+        cell = new Soundtrack("music/cell.ogg", new float[]{130, 57.426f});
     }
 
     // Private constructor:
-    private Soundtrack(String[] musicSegments, boolean autoLoop) {
-        this.segments = new Music[musicSegments.length];
-        this.autoLoop = autoLoop;
-        for (int i = 0; i < musicSegments.length; i++) {
-            try {
-                this.segments[i] = new Music(musicSegments[i]);
-                this.segments[i].addListener(new MusicListener() {
-                    @Override
-                    public void musicEnded(Music music) {
-                        play(queued);
-                    }
-                    @Override
-                    public void musicSwapped(Music music, Music music1) {}
-                });
-            } catch (SlickException e) {
-                e.printStackTrace();
-            }
+    private Soundtrack(String URI, float[] markers) {
+        this.segments = markers;
+        Music music = null;
+        try {
+            music = new Music(URI);
+            music.addListener(new MusicListener() {
+                @Override
+                public void musicEnded(Music music) {
+                    play(segments.length-1);
+                }
+                @Override
+                public void musicSwapped(Music music, Music newMusic) {}
+            });
+        } catch (SlickException e) {
+            e.printStackTrace();
         }
+        this.music = music;
     }
 
     /**
@@ -56,13 +52,10 @@ public class Soundtrack {
      */
     public int play(int segment) {
         if (segment >= segments.length || segment < 0) return -1;
-        if (segment < segments.length-1 || !autoLoop) {
-            segments[segment].play();
-        } else {
-            segments[segment].loop();
+        music.setPosition(segments[segment]);
+        if (!music.playing()) {
+            music.play();
         }
-        nowPlaying = segment;
-        queued = segment + 1;
         return 0;
     }
 
@@ -79,6 +72,23 @@ public class Soundtrack {
      * @return index of playing segment.
      */
     public int getPlayingSegment() {
-        return nowPlaying;
+        if (music.playing()) {
+            // Probably overkill to do binary search optimization here, but hey it's good practice.
+            float position = music.getPosition();
+            int startIndex = 0;
+            int endIndex = segments.length - 1;
+            int middleIndex;
+            while (startIndex < endIndex) {
+                middleIndex = (endIndex+startIndex)/2;
+                if (position < segments[middleIndex+1]) {
+                    endIndex = middleIndex;
+                } else {
+                    startIndex = middleIndex + 1;
+                }
+            }
+            return startIndex;
+        } else {
+            return -1;
+        }
     }
 }

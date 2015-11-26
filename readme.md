@@ -18,4 +18,4 @@ finished.
 
 ### License
 
-Copyright (C) 2015 Adam Snyder. All Rights Reserved.
+Copyright (C) 2015 Adam Snyder. All rights reserved.

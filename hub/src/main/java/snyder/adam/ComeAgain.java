@@ -8,7 +8,6 @@ import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
-import snyder.adam.states.FooState;
 import snyder.adam.states.IntroCreditsState;
 
 import java.awt.*;
@@ -48,11 +47,11 @@ public class ComeAgain extends StateBasedGame {
         container.setShowFPS(DEBUG);
         container.setVSync(V_SYNC);
 
-//        this.addState(new IntroCreditsState());
-//        this.enterState(IntroCreditsState.ID);
+        this.addState(new IntroCreditsState());
+        this.enterState(IntroCreditsState.ID);
 
-        this.addState(new FooState());
-        this.enterState(1);
+//        this.addState(new FooState());
+//        this.enterState(1);
     }
     
     public static void main(String[] args) throws SlickException {
