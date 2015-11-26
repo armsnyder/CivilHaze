@@ -22,7 +22,7 @@ public class Soundtrack {
      */
     public static void load() {
         mainTheme = new Soundtrack("music/Main_Theme.ogg", new float[]{0, 10.158f, 24.381f});
-        cell = new Soundtrack("music/cell.ogg", new float[]{130, 57.426f});
+        cell = new Soundtrack("music/cell.ogg", new float[]{0, 57.426f});
     }
 
     // Private constructor:
