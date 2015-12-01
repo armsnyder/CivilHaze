@@ -17,6 +17,7 @@ import snyder.adam.Util;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.*;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -31,8 +32,9 @@ public class Server implements Runnable {
     private boolean isRunning = false;
     private HttpServer server = null;
     private final Map<String, Participant> participantMap;
-    private final MobileListener listener;
+    private MobileListener listener;
     private boolean hasError = false;
+    private static Server _instance;
 
     public Server(Map<String, Participant> participantMap, MobileListener listener, int port) throws IOException {
         this.participantMap = participantMap;
@@ -45,6 +47,7 @@ public class Server implements Runnable {
         }
         server.createContext("/", new InputHandler());
         server.setExecutor(null); // creates a default executor
+        _instance = this;
     }
 
     @Override
@@ -69,6 +72,18 @@ public class Server implements Runnable {
         }
         server.stop(0);
         listener.onServerStopped();
+    }
+
+    public static Server getInstance() {
+        return _instance;
+    }
+
+    public Collection<Participant> getParticipants() {
+        return participantMap.values();
+    }
+
+    public void setListener(MobileListener listener) {
+        this.listener = listener;
     }
 
     public boolean isParticipantConnected(Participant participant) {
@@ -195,7 +210,9 @@ public class Server implements Runnable {
                     Participant participant = participantMap.get(ip);
                     participant.setLastPing();
                     listener.onPing(participant);
-                    respondWithSuccess(t, "true");
+                    String message = participant.retrieveMessage();
+                    if (message == null) message = "true";
+                    respondWithSuccess(t, message);
                 } else {
                     respondWithSuccess(t, "false");
                 }

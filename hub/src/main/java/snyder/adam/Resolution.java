@@ -70,12 +70,6 @@ public class Resolution implements Comparable<Resolution> {
         int displayPixels = displayWidth * displayHeight;
         float displayAspect = (float) displayWidth / displayHeight;
         float deltaAspect = 0.001f;
-        // Larger resolution of exact aspect ratio:
-        for (Resolution r : supportedResolutions) {
-            if (r.PIXELS >= displayPixels && Math.abs(r.ASPECT_RATIO - displayAspect) < deltaAspect) {
-                return r;
-            }
-        }
         // Smaller resolution of exact aspect ratio:
         for (int i = supportedResolutions.length-1; i >= 0; i--) {
             Resolution r = supportedResolutions[i];

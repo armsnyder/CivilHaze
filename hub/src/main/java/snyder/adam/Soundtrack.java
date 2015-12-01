@@ -24,7 +24,7 @@ public class Soundtrack extends Music {
     public static void load() {
         try {
             mainTheme = new Soundtrack("music/Main_Theme.ogg", new float[]{0, 17.56f, 31.783f});
-            cell = new Soundtrack("music/Cell.ogg", new float[]{0, 45});
+            cell = new Soundtrack("music/cell.ogg", new float[]{0, 45});
             ohNo = new Soundtrack("music/Oh_No.ogg", new float[]{0, 5.06f});
             gameplay = new Soundtrack("music/Gameplay.ogg", new float[]{0, 30.208f});
         } catch (SlickException e) {

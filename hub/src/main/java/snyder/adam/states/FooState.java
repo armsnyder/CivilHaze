@@ -5,71 +5,159 @@
 package snyder.adam.states;
 
 import org.newdawn.slick.*;
-import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
-import snyder.adam.Entity;
-import snyder.adam.Images;
-import snyder.adam.Participant;
-import snyder.adam.ScaledSpriteSheetFont;
+import snyder.adam.*;
+import snyder.adam.entity.Entity;
 import snyder.adam.network.MobileListener;
 import snyder.adam.network.Server;
 import snyder.adam.util.RotationalDistance;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Flame
  */
-public class FooState extends BasicGameState {
+public class FooState extends MasterState implements MobileListener {
 
-    Map<String, Boolean> keyStates = new HashMap<>();
-    Map<Participant, PlayerDot> players = new HashMap<>();
-    LinkedList<Color> availColors = new LinkedList<>(Arrays.asList(Color.blue, Color.green, Color.magenta,
-            Color.orange, Color.yellow, Color.white));
-    Music intro;
-    Music loop;
-    ScaledSpriteSheetFont text;
+    public static final int ID = 1;
+    private Map<Participant, PlayerDot> players = new HashMap<>();
+    private LinkedList<Color> availColors = new LinkedList<>(Arrays.asList(Color.blue, Color.green, Color.magenta,
+            Color.orange, Color.yellow, Color.cyan, Color.pink, Color.red, new Color(0.47f, 0, 0.87f),
+            new Color(0.73f, 0.94f, 0.33f), new Color(0.29f, 0.84f, 0.72f), Color.lightGray,
+            new Color(0.83f, 0.84f, 0.29f), new Color(0.19f, 0.42f, 0.71f), new Color(0.71f, 0.19f, 0.34f)));
+    private static final Random RANDOM = new Random();
 
     @Override
     public void enter(GameContainer container, StateBasedGame game) throws SlickException {
-        Images.preload();
-        text = Images.text;
         super.enter(container, game);
+        Soundtrack.gameplay.play();
+        for (Participant p : Server.getInstance().getParticipants()) {
+            addPlayer(p);
+        }
+        Server.getInstance().setListener(this);
+        for (int i = 0; i < 10; i++) {
+            makeEdible();
+        }
     }
 
     @Override
     public int getID() {
-        return 1;
+        return ID;
     }
 
+    @Override
     public void init(GameContainer container, StateBasedGame stateBasedGame) throws SlickException {
-        Server s = null;
-        try {
-            s = new Server(new HashMap<String, Participant>(), new Listener(), 8000);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Thread t = new Thread(s);
-        t.start();
+        layers.add(new ArrayDeque<Entity>());
+        layers.add(new ArrayDeque<Entity>());
+        layersQueue.add(new ArrayDeque<Entity>());
+        layersQueue.add(new ArrayDeque<Entity>());
     }
 
-    public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
-        for (PlayerDot d : players.values()) {
-            d.render(container, stateBasedGame, g);
+    @Override
+    public void onButtonPress(Participant participant, String button) {}
+
+    @Override
+    public void onButtonRelease(Participant participant, String button) {}
+
+    @Override
+    public void onJoystickInput(Participant participant, double angle, double magnitude) {
+        if (!players.containsKey(participant)) {
+            PlayerDot newPlayer = new PlayerDot();
+            newPlayer.color = availColors.pop();
+            players.put(participant, newPlayer);
         }
-        if (text != null) {
-            text.setSize(3);
-            text.drawString(200, 50, "come-again.net");
+        if (players.get(participant).speed == 0) players.get(participant).angle = angle;
+        players.get(participant).desiredAngle = angle;
+        players.get(participant).desiredMagnitude = magnitude;
+    }
+
+    @Override
+    public void onVote(Participant participant, String[] votedFor) {}
+
+    @Override
+    public void onConnect(Participant participant) {
+        addPlayer(participant);
+    }
+
+    @Override
+    public void onDisconnect(Participant participant) {
+        removePlayer(participant);
+    }
+
+    @Override
+    public void onPing(Participant participant) {}
+
+    @Override
+    public void onServerReady() {}
+
+    @Override
+    public void onServerFatalError(String description) {}
+
+    @Override
+    public void onServerStopped() {}
+
+    private void addPlayer(Participant participant) {
+        if (availColors.size() > 0) {
+            PlayerDot newPlayer = new PlayerDot();
+            newPlayer.color = availColors.pop();
+            newPlayer.x = 50+RANDOM.nextInt(Resolution.selected.WIDTH-100);
+            newPlayer.y = 50+RANDOM.nextInt(Resolution.selected.HEIGHT-100);
+            players.put(participant, newPlayer);
+            layersQueue.get(1).add(newPlayer);
+            participant.sendMessage("{\"result\": \"true\", \"color\": ["+newPlayer.color.r+","+newPlayer.color.g+","+
+                    newPlayer.color.b+"]}");
         }
     }
 
-    public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
-        for (PlayerDot d : players.values()) {
-            d.update(container, stateBasedGame, i);
+    private void removePlayer(Participant participant) {
+        availColors.push(players.get(participant).color);
+        PlayerDot p = players.get(participant);
+        players.remove(participant);
+        if (layers.get(1).contains(p)) {
+            layersQueue.get(1).add(p);
+        }
+    }
+
+    private void makeEdible() {
+        Edible e = new Edible(
+                50+RANDOM.nextInt(Resolution.selected.WIDTH-100),
+                50+RANDOM.nextInt(Resolution.selected.HEIGHT-100));
+        layersQueue.get(0).add(e);
+    }
+
+    class Edible implements Entity {
+
+        int x;
+        int y;
+        boolean doRender = true;
+
+        public Edible(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        @Override
+        public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
+            if (doRender) {
+                g.setColor(Color.white);
+                g.fillOval(x, y, 10, 10);
+            }
+        }
+
+        @Override
+        public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
+            if (doRender) {
+                for (Entity e : layers.get(1)) {
+                    PlayerDot p = (PlayerDot) e;
+                    if (Math.abs(p.x - x) < 20 && Math.abs(p.y - y) < 20) {
+                        doRender = false;
+                        p.score++;
+                        makeEdible();
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -84,18 +172,34 @@ public class FooState extends BasicGameState {
         double deceleration = .006;
         double angle = 0;
         double angularAcceleration = 0.05;
-        float width = 50;
-        float height = 50;
+        float width = 30;
+        float height = 30;
+        int score = 0;
+        boolean winning = false;
 
         @Override
         public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
             g.setColor(color);
-            g.fillOval((int)x, (int)y, width, height);
+            g.fillOval((float)x, (float)y, width, height);
+            if (winning) {
+                g.setColor(Color.white);
+                g.setLineWidth(2);
+                g.drawOval((float) x, (float) y, width, height);
+            }
         }
 
         @Override
         public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
-            float scale = .5f;
+
+            int maxScore = 0;
+            for (Entity e : layers.get(1)) {
+                if (((PlayerDot) e).score > maxScore) {
+                    maxScore = ((PlayerDot) e).score;
+                }
+            }
+            winning = maxScore == score;
+
+            float scale = .2f;
             if (speed > desiredMagnitude) {
                 double deltaSpeed = deceleration * i;
                 if (deltaSpeed > speed - desiredMagnitude) {
@@ -138,102 +242,6 @@ public class FooState extends BasicGameState {
             if (x > container.getWidth()-width || x < 0) {
                 x -= deltaX;
             }
-        }
-    }
-
-    class MListener implements MusicListener {
-
-        @Override
-        public void musicEnded(Music music) {
-            loop.loop();
-        }
-
-        @Override
-        public void musicSwapped(Music music, Music newMusic) {
-
-        }
-    }
-
-    class Listener implements MobileListener {
-
-        @Override
-        public void onButtonPress(Participant participant, String button) {
-            keyStates.put(button, true);
-            try {
-                loop = new Music("music/"+button+"_loop.ogg");
-            } catch (SlickException e) {
-                e.printStackTrace();
-            }
-            try {
-                if (button.equalsIgnoreCase("happy_man")) {
-                    loop.loop();
-                } else {
-                    intro = new Music("music/" + button + "_intro.ogg");
-                    intro.addListener(new MListener());
-                    intro.play();
-                }
-            } catch (SlickException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onButtonRelease(Participant participant, String button) {
-            keyStates.put(button, false);
-        }
-
-        @Override
-        public void onJoystickInput(Participant participant, double angle, double magnitude) {
-            if (!players.containsKey(participant)) {
-                PlayerDot newPlayer = new PlayerDot();
-                newPlayer.color = availColors.pop();
-                players.put(participant, newPlayer);
-            }
-            if (players.get(participant).speed == 0) players.get(participant).angle = angle;
-            players.get(participant).desiredAngle = angle;
-            players.get(participant).desiredMagnitude = magnitude;
-        }
-
-        @Override
-        public void onVote(Participant participant, String[] votedFor) {
-            System.out.println("vote from "+participant);
-            for (String vote : votedFor) {
-                System.out.println("--"+vote);
-            }
-        }
-
-        @Override
-        public void onConnect(Participant participant) {
-            System.out.println("connected "+participant);
-            PlayerDot newPlayer = new PlayerDot();
-            newPlayer.color = availColors.pop();
-            players.put(participant, newPlayer);
-        }
-
-        @Override
-        public void onDisconnect(Participant participant) {
-            System.out.println("disconnect "+participant);
-            availColors.push(players.get(participant).color);
-            players.remove(participant);
-        }
-
-        @Override
-        public void onPing(Participant participant) {
-        }
-
-        @Override
-        public void onServerReady() {
-            System.out.println("server ready");
-        }
-
-        @Override
-        public void onServerFatalError(String description) {
-            System.out.println("server error: "+description);
-        }
-
-        @Override
-        public void onServerStopped() {
-            System.out.println("Server stopped");
         }
     }
 }

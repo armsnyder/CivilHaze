@@ -89,6 +89,7 @@ angular.module('comeAgain')
         var connection;
         var pingInterval;
         var observerCallbacks = [];
+        var colorCallbacks = [];
         function notifyObservers(errObj) {
             angular.forEach(observerCallbacks, function(callback) {
                 callback(errObj);
@@ -99,6 +100,11 @@ angular.module('comeAgain')
                 if (!response || response.result == 'false') {
                     notifyObservers('disconnected');
                     window.clearInterval(pingInterval);
+                }
+                if (response.hasOwnProperty("color")) {
+                    angular.forEach(colorCallbacks, function(callback) {
+                        callback(response.color);
+                    })
                 }
             }, function() {
                 notifyObservers('disconnected');
@@ -151,6 +157,9 @@ angular.module('comeAgain')
             },
             registerDisconnectCallback: function(callback) {
                 observerCallbacks.push(callback);
+            },
+            registerColorCallback: function(callback) {
+                colorCallbacks.push(callback);
             }
         };
     })

@@ -4,11 +4,9 @@
 
 package snyder.adam;
 
-import org.newdawn.slick.AppGameContainer;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.StateBasedGame;
-import snyder.adam.states.IntroCreditsState;
+import snyder.adam.states.*;
 
 import java.awt.*;
 
@@ -16,9 +14,6 @@ import java.awt.*;
  * @author Adam Snyder
  */
 public class ComeAgain extends StateBasedGame {
-
-    /** Full screen */
-    private static final boolean FULL_SCREEN = false;
 
     /** Screen title */
     private static final String TITLE = "Come With Me, Again";
@@ -30,7 +25,7 @@ public class ComeAgain extends StateBasedGame {
     private static final int LOGIC_UPDATE_INTERVAL = FPS;
 
     /** Debug mode enable */
-    private static final boolean DEBUG = true;
+    public static boolean debug = false;
 
     /** VSync enable */
     private static final boolean V_SYNC = true;
@@ -44,32 +39,47 @@ public class ComeAgain extends StateBasedGame {
         container.setMaximumLogicUpdateInterval(LOGIC_UPDATE_INTERVAL);
         container.setAlwaysRender(true);
         container.setTargetFrameRate(FPS);
-        container.setShowFPS(DEBUG);
+        container.setShowFPS(debug);
         container.setVSync(V_SYNC);
 
-        this.addState(new IntroCreditsState());
-        this.enterState(IntroCreditsState.ID);
+        Images.load();
+        Soundtrack.load();
 
-//        this.addState(new FooState());
-//        this.enterState(1);
+        this.addState(new IntroCreditsState());
+        this.addState(new StartMenuState());
+        this.addState(new CellLobbyState());
+        this.addState(new FooState());
+        this.addState(new DialogueState());
+
+        this.enterState(IntroCreditsState.ID);
     }
-    
+
     public static void main(String[] args) throws SlickException {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int displayWidth = (int) screenSize.getWidth();
-        int displayHeight = (int) screenSize.getHeight();
-        Resolution defaultResolution = FULL_SCREEN ?
-                Resolution.getMatchingFullScreenResolution(displayWidth, displayHeight) :
-                Resolution.getMatchingWindowedResolution(displayWidth, displayHeight);
-        Resolution.select(defaultResolution);
-        AppGameContainer app = new AppGameContainer(new ComeAgain(), defaultResolution.WIDTH,
-                defaultResolution.HEIGHT, false);
-        if (FULL_SCREEN) {
-            app.setDisplayMode(displayWidth, displayHeight, true);
-        } else {
-            app.setDisplayMode(defaultResolution.WIDTH, defaultResolution.HEIGHT, false);
+        boolean windowed = false;
+        boolean isStatic = false;
+        for (String a : args) {
+            if (a.equalsIgnoreCase("windowed")) windowed = true;
+            if (a.equalsIgnoreCase("window")) windowed = true;
+            if (a.equalsIgnoreCase("static")) isStatic = true;
+            if (a.equalsIgnoreCase("debug")) debug = true;
         }
-        app.setForceExit(false);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int displayWidth = (int) screenSize.getWidth(); // Actual width of physical display
+        int displayHeight = (int) screenSize.getHeight(); // Actual height of physical display
+        Resolution defaultResolution = windowed ?
+                Resolution.getMatchingWindowedResolution(displayWidth, displayHeight) :
+                Resolution.getMatchingFullScreenResolution(displayWidth, displayHeight);
+
+        Resolution.select(defaultResolution);
+        Game game = isStatic ? new ComeAgain() :
+                new ScalableGame(new ComeAgain(), defaultResolution.WIDTH, defaultResolution.HEIGHT);
+        AppGameContainer app = new AppGameContainer(game, defaultResolution.WIDTH, defaultResolution.HEIGHT, false);
+        if (windowed) {
+            app.setDisplayMode(defaultResolution.WIDTH, defaultResolution.HEIGHT, false);
+        } else {
+            app.setDisplayMode(displayWidth, displayHeight, true);
+        }
+        app.setForceExit(true);
         app.start();
     }
 }

@@ -6,20 +6,23 @@ package snyder.adam.states;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
-import snyder.adam.Images;
 import snyder.adam.Resolution;
 import snyder.adam.Soundtrack;
+import snyder.adam.entity.Entity;
+import snyder.adam.entity.FadingText;
+import snyder.adam.util.Callback;
+
+import java.util.ArrayDeque;
+import java.util.LinkedList;
 
 
-public class IntroCreditsState extends BasicGameState {
+public class IntroCreditsState extends MasterState {
 
     public static final int ID = 2;
-    private volatile boolean allLoaded = false;
     private boolean triggerNextState = false;
+    private LinkedList<FadingText> messages = new LinkedList<>();
 
     @Override
     public int getID() {
@@ -28,24 +31,18 @@ public class IntroCreditsState extends BasicGameState {
 
     @Override
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
-        try {
-            Images.preload();
-        } catch (SlickException e) {
-            e.printStackTrace();
+        messages.add(new FadingText("A game by Adam Snyder", 0, 0, 3, Color.white, false));
+        messages.add(new FadingText("Art by Jae Yun", 0, 0, 3, Color.white, false));
+        for (FadingText t : messages) {
+            t.setX((Resolution.selected.WIDTH - t.getWidth())/2);
+            t.setY((Resolution.selected.HEIGHT - t.getHeight())/2);
         }
-    }
-
-    @Override
-    public void render(GameContainer gameContainer, StateBasedGame stateBasedGame, Graphics graphics) throws SlickException {
-        String text = allLoaded ? "Loaded!" : "Loading...";
-        Images.text.setSize(5);
-        int x = (Resolution.selected.WIDTH - Images.text.getWidth(text))/2;
-        int y = (Resolution.selected.HEIGHT - Images.text.getHeight(text))/2;
-        Images.text.drawString(x, y, text, Color.white);
+        layers.add(new ArrayDeque<Entity>(messages));
     }
 
     @Override
     public void update(GameContainer gameContainer, StateBasedGame stateBasedGame, int i) throws SlickException {
+        super.update(gameContainer, stateBasedGame, i);
         if (triggerNextState) {
             stateBasedGame.enterState(StartMenuState.ID);
         }
@@ -53,30 +50,41 @@ public class IntroCreditsState extends BasicGameState {
 
     @Override
     public void keyPressed(int key, char c) {
-        if (allLoaded) {
-            triggerNextState = true;
-        }
         super.keyPressed(key, c);
+        triggerNextState = true;
     }
 
     @Override
     public void enter(GameContainer container, final StateBasedGame game) throws SlickException {
-        new Thread() {
-            public void run() {
-                Soundtrack.load();
-                Soundtrack.mainTheme.play();
-                game.addState(new StartMenuState());
-                game.addState(new FooState());
-                game.addState(new CellLobbyState());
-                // Delay declaring everything loaded by 2 seconds
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    allLoaded = true;
-                }
-                allLoaded = true;
-            }
-        }.start();
         super.enter(container, game);
+        Soundtrack.mainTheme.play();
+        readyNextMessage();
+    }
+
+    private void readyNextMessage() {
+        if (messages.size() > 0) {
+            messages.getFirst().fadeIn(4000, new Callback() {
+                @Override
+                public void callback(Object object) {
+                    messages.getFirst().fadeOut(4000, new Callback() {
+                        @Override
+                        public void callback(Object object) {
+                            messages.pop();
+                            readyNextMessage();
+                        }
+                    });
+                }
+            });
+        } else {
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(1570);
+                    } catch (InterruptedException ignored) {}
+                    triggerNextState = true;
+                }
+            }.start();
+        }
     }
 }

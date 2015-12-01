@@ -10,6 +10,7 @@ package snyder.adam;
 public class Participant {
     private final String ipAddress;
     private long lastPing;
+    private String message;
 
     public Participant(String ipAddress) {
         this.ipAddress = ipAddress;
@@ -31,5 +32,15 @@ public class Participant {
     @Override
     public String toString() {
         return ipAddress;
+    }
+
+    public void sendMessage(String message) {
+        this.message = message;
+    }
+
+    public String retrieveMessage() {
+        String result = message;
+        message = null;
+        return result;
     }
 }
