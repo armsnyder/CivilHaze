@@ -53,7 +53,7 @@ public class StartMenuState extends BasicGameState {
     @Override
     public void enter(GameContainer container, StateBasedGame game) throws SlickException {
         if (Soundtrack.mainTheme.getPlayingSegment() == 0 || Soundtrack.mainTheme.getPlayingSegment() == -1) {
-            Soundtrack.mainTheme.play(1);
+            Soundtrack.mainTheme.playFrom(1);
         }
         String s = "PRESS ANY KEY TO START";
         int x = (Resolution.selected.WIDTH - Images.text.getWidth(s))/2;
