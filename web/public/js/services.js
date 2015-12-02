@@ -23,13 +23,12 @@ angular.module('comeAgain')
             }
         }
     })
-    .factory('ControllerService', function($q, GameResource, GameConnectionService, Interceptor) {
+    .factory('ControllerService', function($q, GameResource, GameConnectionService) {
         var MAX_FAILED_CONNECTIONS = 3;
         var badConnectionCount = 0;
         var retry;
         var openRequests = 0;
         var lastJoystickInput;
-        Interceptor.registerMessageCallback(onColor);
         function conSuccess() {
             openRequests--;
             //if (openRequests > 0 && lastJoystickInput.magnitude==0) {
@@ -45,25 +44,6 @@ angular.module('comeAgain')
             } else {
                 retry.fn(retry.arg);
             }
-        }
-        function onColor(messages) {
-            console.log(messages);
-            function dec2hex(dec) {
-                var result = String(Number(parseInt(dec, 10)).toString(16));
-                while (result.length < 2) {
-                    result = '0' + result;
-                }
-                return result;
-            }
-            angular.forEach(messages, function(message) {
-                console.log(message);
-                if (!message.hasOwnProperty('color')) return;
-                var color = message.color;
-                var color_part_hex_0 = dec2hex(255 * color[0]);
-                var color_part_hex_1 = dec2hex(255 * color[1]);
-                var color_part_hex_2 = dec2hex(255 * color[2]);
-                factory.color = "#" + color_part_hex_0 + color_part_hex_1 + color_part_hex_2;
-            });
         }
         var factory = {
             buttonOn: function(button) {
@@ -192,6 +172,7 @@ angular.module('comeAgain')
     .factory('Interceptor', function($q) {
         var messageCallbacks = [];
         var disconnectCallbacks = [];
+        var messageLog = [];
         function notifyObservers(list, object) {
             angular.forEach(list, function(callback) {
                 callback(object);
@@ -215,18 +196,19 @@ angular.module('comeAgain')
                     notifyObservers(disconnectCallbacks);
                 }
                 if (response.data.hasOwnProperty('messages')) {
-                    notifyObservers(messageCallbacks, response.data.messages);
+                    messageLog.push.apply(messageLog, response.data.messages);
+                    angular.forEach(response.data.messages, function(message) {
+                        notifyObservers(messageCallbacks, message);
+                    });
                 }
             }
         }
         return {
             'response': function(response) {
-                console.log(response);
                 processResponse(response);
                 return response;
             },
             'responseError': function(response) {
-                console.error(response);
                 processResponse(response);
                 return $q.reject(response);
             },
@@ -241,6 +223,9 @@ angular.module('comeAgain')
             },
             'unregisterDisconnectCallback': function(callback) {
                 removeObserver(disconnectCallbacks, callback);
+            },
+            getMessageLog: function() {
+                return messageLog;
             }
         };
     });

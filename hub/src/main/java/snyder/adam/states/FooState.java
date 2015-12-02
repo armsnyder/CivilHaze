@@ -100,6 +100,8 @@ public class FooState extends MasterState implements MobileListener {
 
     static PlayerDot addPlayer(Participant participant) {
         if (players.containsKey(participant)) {
+            PlayerDot player = players.get(participant);
+            participant.sendMessage("color", new float[]{player.color.r, player.color.g, player.color.b});
             return players.get(participant);
         } else {
             if (availColors.size() > 0) {

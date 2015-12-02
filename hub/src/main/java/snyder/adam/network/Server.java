@@ -161,11 +161,12 @@ public class Server implements Runnable {
                         break;
                     case "OPTIONS":
                         respondWithSuccess(t, responseObject);
+                        break;
                     default:
-                        respondWithError(t, responseObject);
+                        respondWithError(t, responseObject, "bad request method");
                 }
             } catch (Exception e) {
-                respondWithError(t, responseObject);
+                respondWithError(t, responseObject, e.getMessage());
             }
             t.close();
         }
@@ -232,6 +233,8 @@ public class Server implements Runnable {
                         participantMap.put(participantId, connectedParticipant);
                         listener.onConnect(connectedParticipant);
                     }
+                } else {
+                    listener.onConnect(participantMap.get(participantId));
                 }
             }
             respondWithSuccess(t, responseObject);
@@ -345,9 +348,10 @@ public class Server implements Runnable {
             postProcess(responseObject, t.getRemoteAddress().getHostName());
             if (!responseObject.has("error")) responseObject.put("error", "false");
             if (!responseObject.has("success")) responseObject.put("success", "false");
-            if (responseObject.get("success").toString().equals("true") && responseObject.get("error").toString().equals("true")) {
+            if (!responseObject.get("success").toString().equals("false") && !responseObject.get("error").toString().equals("false")) {
                 // TODO: Figure out why this is happening
                 System.out.println(t.getRequestURI().getPath());
+                System.out.println(responseObject.toString());
             }
             String response = responseObject.toString();
             t.sendResponseHeaders(code, response.getBytes().length);
