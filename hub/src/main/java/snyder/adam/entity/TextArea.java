@@ -18,12 +18,11 @@ import java.util.List;
  */
 public class TextArea extends Text {
 
-    private int width;
     private String[] lines;
     private String[] words;
     private int alignment = -1; // -1: Left, 0: Center, 1: Right
 
-    public TextArea(String text, float x, float y, int width, int size, Color color) {
+    public TextArea(String text, float x, float y, float width, int size, Color color) {
         super(text, x, y, size, color);
         this.width = width;
         this.lines = new String[0];
@@ -34,7 +33,7 @@ public class TextArea extends Text {
     public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
         font.setSize(size);
         for (int i = 0; i < lines.length; i++) {
-            int offset = alignment < 0 ? 0 : alignment > 0 ? width - font.getWidth(lines[i]) :
+            float offset = alignment < 0 ? 0 : alignment > 0 ? width - font.getWidth(lines[i]) :
                     (width - font.getWidth(lines[i]))/2;
             font.drawString(offset + x, i*font.getLineHeight() + y, lines[i], color);
         }

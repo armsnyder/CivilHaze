@@ -41,15 +41,15 @@ public class DialogueState extends MasterState {
         final int edge = (Resolution.selected.WIDTH - width) / 2;
         final int y = Resolution.selected.HEIGHT-height-edge;
         final int cornerRadius = 50;
-        registerEntity(new Entity() {
+        registerEntity(new Entity(edge, y, width, height) {
             @Override
             public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g)
                     throws SlickException {
                 g.setColor(new Color(1, 1, 1, 0.9f));
-                g.fillRoundRect(edge, y, width, height, cornerRadius);
+                g.fillRoundRect(x, y, width, height, cornerRadius);
                 g.setColor(Color.black);
                 g.setLineWidth(6);
-                g.drawRoundRect(edge, y, width, height, cornerRadius);
+                g.drawRoundRect(x, y, width, height, cornerRadius);
             }
 
             @Override

@@ -18,15 +18,18 @@ public abstract class MasterState extends BasicGameState {
 
     private final List<Collection<Entity>> layers = new ArrayList<>();
     private final Deque<Registration> entityRegisterQueue = new ArrayDeque<>();
+    private boolean layersLock = false;
 
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         // Render all registered entities, layer by layer, such that lower layers are rendered first:
+        layersLock = true;
         for (Collection<Entity> c : layers) {
             for (Entity e : c) {
                 e.render(container, game, g);
             }
         }
+        layersLock = false;
     }
 
     @Override
@@ -35,17 +38,19 @@ public abstract class MasterState extends BasicGameState {
         while (!entityRegisterQueue.isEmpty()) {
             Registration r = entityRegisterQueue.pop();
             if (r.register) {
-                finalizeRegisterEntity(r);
+                finalizeRegisterEntity(r.entity, r.layer);
             } else {
-                finalizeUnregisterEntity(r);
+                finalizeUnregisterEntity(r.entity);
             }
         }
         // Update all registered entities:
+        layersLock = true;
         for (Collection<Entity> c : layers) {
             for (Entity e : c) {
                 e.update(container, game, delta);
             }
         }
+        layersLock = false;
     }
 
     /**
@@ -54,7 +59,11 @@ public abstract class MasterState extends BasicGameState {
      * @param layer Layer the entity will be rendered on. Higher layers are rendered above lower layers.
      */
     protected void registerEntity(Entity entity, int layer) {
-        entityRegisterQueue.add(new Registration(entity, layer));
+        if (layersLock) {
+            entityRegisterQueue.add(new Registration(entity, layer));
+        } else {
+            finalizeRegisterEntity(entity, layer);
+        }
     }
 
     /**
@@ -73,7 +82,11 @@ public abstract class MasterState extends BasicGameState {
      * @param entity Entity to be removed
      */
     protected void unregisterEntity(Entity entity) {
-        entityRegisterQueue.add(new Registration(entity));
+        if (layersLock) {
+            entityRegisterQueue.add(new Registration(entity));
+        } else {
+            finalizeUnregisterEntity(entity);
+        }
     }
 
     /**
@@ -91,6 +104,20 @@ public abstract class MasterState extends BasicGameState {
     }
 
     /**
+     * Get all entities registered to any of the specified layers. Useful for retrieving groups of entities for
+     * collision detection.
+     * @param layers Array of layers to retrieve
+     * @return Collection of Entity objects on any of the specified layers (concatenated)
+     */
+    protected Collection<Entity> getEntities(int[] layers) {
+        HashSet<Entity> result = new HashSet<>();
+        for (int i : layers) {
+            result.addAll(getEntities(i));
+        }
+        return result;
+    }
+
+    /**
      * Get all entities registered in the global update/render loop
      * @return Collection of all registered Entity objects
      */
@@ -102,21 +129,21 @@ public abstract class MasterState extends BasicGameState {
         return allEntities;
     }
 
-    private void finalizeRegisterEntity(Registration registration) {
+    private void finalizeRegisterEntity(Entity entity, int layer) {
         // If the entity is already registered, remove it first:
-        finalizeUnregisterEntity(registration);
+        finalizeUnregisterEntity(entity);
         // Make sure the layer exists, and create it if it doesn't:
-        while (layers.size() <= registration.layer) {
+        while (layers.size() <= layer) {
             layers.add(new HashSet<Entity>());
         }
         // Complete registration:
-        layers.get(registration.layer).add(registration.entity);
+        layers.get(layer).add(entity);
     }
 
-    private void finalizeUnregisterEntity(Registration registration) {
+    private void finalizeUnregisterEntity(Entity entity) {
         for (Collection<Entity> c : layers) {
-            while (c.contains(registration.entity)) {
-                c.remove(registration.entity);
+            while (c.contains(entity)) {
+                c.remove(entity);
             }
         }
     }

@@ -17,6 +17,7 @@ public class ImageEntity extends Entity {
     private float scale = 1;
 
     public ImageEntity(Image image) {
+        super();
         this.image = image;
     }
 

@@ -18,6 +18,7 @@ import snyder.adam.entity.Text;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Collection;
 
 
 public class StartMenuState extends MasterState {
@@ -39,11 +40,9 @@ public class StartMenuState extends MasterState {
         // Add title text:
         Images.text.setSize(7);
         int offset = Images.text.getWidth(" ") / 10;
-        registerEntities(new ArrayDeque<Entity>(Arrays.asList(
-                new Text("COME WITH ME, AGAIN", offset, offset, 7, Color.black),
-                new Text("COME WITH ME, AGAIN", 0, 0, 7, Color.red)
-        )), 1);
-        for (Entity t : getEntities(1)) {
+        registerEntity(new Text("COME WITH ME, AGAIN", offset, offset, 7, Color.black), 1);
+        registerEntity(new Text("COME WITH ME, AGAIN", 0, 0, 7, Color.red), 2);
+        for (Entity t : getEntities(new int[]{1, 2})) {
             Text text = (Text) t;
             text.setX(text.getX() + (Resolution.selected.WIDTH-text.getWidth()) / 2);
             text.setY(text.getY() + (Resolution.selected.HEIGHT-text.getHeight()) / 5);

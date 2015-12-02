@@ -11,16 +11,17 @@ import org.newdawn.slick.state.StateBasedGame;
 
 public abstract class Entity {
 
-    protected float x = 0;
-    protected float y = 0;
-    protected float width = 0;
-    protected float height = 0;
+    protected float x;
+    protected float y;
+    protected float width;
+    protected float height;
 
-    public Entity() {}
+    public Entity() {
+        this(0, 0);
+    }
 
     public Entity(float x, float y) {
-        this.x = x;
-        this.y = y;
+        this(x, y, 0, 0);
     }
 
     public Entity(float x, float y, float width, float height) {
@@ -40,7 +41,7 @@ public abstract class Entity {
     }
 
     public boolean contains(Entity e) {
-        return x < e.x && x + width > e.x + e.width && y < e.y && y + height > e.y + e.height;
+        return x <= e.x && x + width >= e.x + e.width && y <= e.y && y + height >= e.y + e.height;
     }
 
     public void setX(float x) {

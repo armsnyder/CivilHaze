@@ -23,9 +23,8 @@ public class Text extends Entity {
     protected ScaledSpriteSheetFont font;
 
     public Text(String text, float x, float y, int size, Color color, boolean isVisible, ScaledSpriteSheetFont font) {
+        super(x, y);
         this.text = text;
-        this.x = x;
-        this.y = y;
         this.size = size;
         this.color = color;
         this.isVisible = isVisible;
