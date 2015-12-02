@@ -23,12 +23,13 @@ angular.module('comeAgain')
             }
         }
     })
-    .factory('ControllerService', function($q, GameResource, GameConnectionService) {
+    .factory('ControllerService', function($q, GameResource, GameConnectionService, Interceptor) {
         var MAX_FAILED_CONNECTIONS = 3;
         var badConnectionCount = 0;
         var retry;
         var openRequests = 0;
         var lastJoystickInput;
+        Interceptor.registerMessageCallback(onColor);
         function conSuccess() {
             openRequests--;
             //if (openRequests > 0 && lastJoystickInput.magnitude==0) {
@@ -44,6 +45,25 @@ angular.module('comeAgain')
             } else {
                 retry.fn(retry.arg);
             }
+        }
+        function onColor(messages) {
+            console.log(messages);
+            function dec2hex(dec) {
+                var result = String(Number(parseInt(dec, 10)).toString(16));
+                while (result.length < 2) {
+                    result = '0' + result;
+                }
+                return result;
+            }
+            angular.forEach(messages, function(message) {
+                console.log(message);
+                if (!message.hasOwnProperty('color')) return;
+                var color = message.color;
+                var color_part_hex_0 = dec2hex(255 * color[0]);
+                var color_part_hex_1 = dec2hex(255 * color[1]);
+                var color_part_hex_2 = dec2hex(255 * color[2]);
+                factory.color = "#" + color_part_hex_0 + color_part_hex_1 + color_part_hex_2;
+            });
         }
         var factory = {
             buttonOn: function(button) {
@@ -78,39 +98,23 @@ angular.module('comeAgain')
                     }
                 });
                 return deferred.promise;
-            }
+            },
+            color: '#000000'
         };
         return factory;
     })
-    .factory('GameConnectionService', function($q, RouteResource, GameResource) {
+    .factory('GameConnectionService', function($q, RouteResource, GameResource, Interceptor) {
         var cachedIP;
         var AUTO_RESTART_DELAY = 3000;
         var PING_INTERVAL = 5000;
         var connection;
         var pingInterval;
-        var observerCallbacks = [];
-        var colorCallbacks = [];
-        function notifyObservers(errObj) {
-            angular.forEach(observerCallbacks, function(callback) {
-                callback(errObj);
-            })
-        }
         function ping() {
-            GameResource.resource(cachedIP).ping().$promise.then(function(response) {
-                if (!response || response.result == 'false') {
-                    notifyObservers('disconnected');
-                    window.clearInterval(pingInterval);
-                }
-                if (response.hasOwnProperty("color")) {
-                    angular.forEach(colorCallbacks, function(callback) {
-                        callback(response.color);
-                    })
-                }
-            }, function() {
-                notifyObservers('disconnected');
-                window.clearInterval(pingInterval);
-            })
+            GameResource.resource(cachedIP).ping();
         }
+        Interceptor.registerDisconnectCallback(function() {
+            if (pingInterval) window.clearInterval(pingInterval);
+        });
         return {
             connect: function() {
                 var deferred = $q.defer();
@@ -123,7 +127,7 @@ angular.module('comeAgain')
                     RouteResource.query().$promise.then(function (ipResponse) {
                         GameResource.setRoot(ipResponse.result);
                         GameResource.resource().connect().$promise.then(function(conResponse) {
-                            if (conResponse.result) {
+                            if (conResponse.connected) {
                                 cachedIP = ipResponse.result;
                                 pingInterval = window.setInterval(ping, PING_INTERVAL);
                                 deferred.resolve(conResponse);
@@ -152,14 +156,8 @@ angular.module('comeAgain')
             },
             disconnect: function() {
                 cachedIP = null;
-                notifyObservers('disconnected');
+                Interceptor.response({'connected': false});
                 if (pingInterval) window.clearInterval(pingInterval);
-            },
-            registerDisconnectCallback: function(callback) {
-                observerCallbacks.push(callback);
-            },
-            registerColorCallback: function(callback) {
-                colorCallbacks.push(callback);
             }
         };
     })
@@ -190,4 +188,59 @@ angular.module('comeAgain')
                 })
             }
         }
+    })
+    .factory('Interceptor', function($q) {
+        var messageCallbacks = [];
+        var disconnectCallbacks = [];
+        function notifyObservers(list, object) {
+            angular.forEach(list, function(callback) {
+                callback(object);
+            });
+        }
+        function addObserver(list, callback) {
+            if (list.indexOf(callback) == -1) {
+                list.push(callback)
+            }
+        }
+        function removeObserver(list, callback) {
+            var index = list.indexOf(callback);
+            if (index > -1) {
+                list.splice(index, 1);
+            }
+        }
+        function processResponse(response) {
+            if (response != null && response.hasOwnProperty('data') && response.data != null) {
+                if (response.data.hasOwnProperty('connected') || !response.data.connected) {
+                    //TODO: Consider if game server goes offline and no 'connected' key present
+                    notifyObservers(disconnectCallbacks);
+                }
+                if (response.data.hasOwnProperty('messages')) {
+                    notifyObservers(messageCallbacks, response.data.messages);
+                }
+            }
+        }
+        return {
+            'response': function(response) {
+                console.log(response);
+                processResponse(response);
+                return response;
+            },
+            'responseError': function(response) {
+                console.error(response);
+                processResponse(response);
+                return $q.reject(response);
+            },
+            'registerMessageCallback': function(callback) {
+                addObserver(messageCallbacks, callback);
+            },
+            'unregisterMessageCallback': function(callback) {
+                removeObserver(messageCallbacks, callback);
+            },
+            'registerDisconnectCallback': function(callback) {
+                addObserver(disconnectCallbacks, callback);
+            },
+            'unregisterDisconnectCallback': function(callback) {
+                removeObserver(disconnectCallbacks, callback);
+            }
+        };
     });

@@ -143,6 +143,8 @@ public class Server implements Runnable {
         @Override
         public void handle(HttpExchange t) throws IOException {
             String[] path = t.getRequestURI().getPath().split("/");
+            JSONObject responseObject = new JSONObject();
+            String participantId = t.getRemoteAddress().getHostName();
             try {
                 Headers headers = t.getResponseHeaders();
                 headers.add("Content-Type", "application/json");
@@ -152,160 +154,157 @@ public class Server implements Runnable {
                         "Content-Type, Authorization, Content-Length, X-Requested-With");
                 switch (t.getRequestMethod()) {
                     case "GET":
-                        handleGet(t, path);
+                        handleGet(t, path, responseObject, participantId);
                         break;
                     case "POST":
-                        handlePost(t, path);
+                        handlePost(t, path, responseObject, participantId);
                         break;
                     case "OPTIONS":
-                        respondWithSuccess(t);
+                        respondWithSuccess(t, responseObject);
                     default:
-                        respondWithError(t);
+                        respondWithError(t, responseObject);
                 }
             } catch (Exception e) {
-                respondWithError(t);
+                respondWithError(t, responseObject);
             }
             t.close();
         }
 
-        private void handleGet(HttpExchange t, String[] path) throws IOException {
-            switch (path[1]) {
-                case "connect":
-                    handleConnect(t);
-                    break;
-                case "disconnect":
-                    handleDisconnect(t);
-                    break;
-                case "ping":
-                    handlePing(t);
-                    break;
-                default:
-                    respondWithError(t);
-            }
-        }
-
-        private void handlePost(HttpExchange t, String[] path) throws IOException {
-            switch (path[1]) {
-                case "input":
-                    handleInput(t, path);
-                    break;
-                case "ping":
-                    handlePing(t);
-                    break;
-                case "connect":
-                    handleConnect(t);
-                    break;
-                case "disconnect":
-                    handleDisconnect(t);
-                    break;
-                default:
-                    respondWithError(t);
-            }
-        }
-
-        private void handlePing(HttpExchange t) throws IOException {
-            synchronized (participantMap) {
-                String ip = t.getRemoteAddress().getHostName();
-                if (participantMap.containsKey(ip)) {
-                    Participant participant = participantMap.get(ip);
-                    participant.setLastPing();
-                    listener.onPing(participant);
-                    String message = participant.retrieveMessage();
-                    if (message == null) message = "true";
-                    respondWithSuccess(t, message);
-                } else {
-                    respondWithSuccess(t, "false");
-                }
-            }
-
-        }
-
-        private void handleConnect(HttpExchange t) throws IOException {
-            String ip = t.getRemoteAddress().getHostName();
-            synchronized (participantMap) {
-                if (participantMap.containsKey(ip)) {
-                    participantMap.get(ip).setLastPing();
-                    respondWithSuccess(t, "true");
-                } else {
-                    if (participantMap.size() < MAX_PARTICIPANTS) {
-                        Participant connectedParticipant = new Participant(ip);
-                        participantMap.put(ip, connectedParticipant);
-                        listener.onConnect(connectedParticipant);
-                        respondWithSuccess(t, "true");
-                    } else {
-                        respondWithSuccess(t, "false");
-                    }
-                }
-            }
-        }
-
-        private void handleDisconnect(HttpExchange t) throws IOException {
-            String ip = t.getRemoteAddress().getHostName();
-            synchronized (participantMap) {
-                if (participantMap.containsKey(ip)) {
-                    listener.onDisconnect(participantMap.get(ip));
-                    participantMap.remove(ip);
-                }
-            }
-            respondWithSuccess(t);
-        }
-
-        private void handleInput(HttpExchange t, String[] path) throws IOException {
-            String participantId = t.getRemoteAddress().getHostName();
+        private void postProcess(JSONObject responseObject, String participantId) {
             synchronized (participantMap) {
                 if (participantMap.containsKey(participantId)) {
-                    participantMap.get(participantId).setLastPing();
-                    switch (path[2]) {
-                        case "button":
-                            handleButton(t, path, participantId);
-                            break;
-                        case "joystick":
-                            handleJoystick(t, participantId);
-                            break;
-                        case "vote":
-                            handleVote(t, participantId);
-                            break;
-                        default:
-                            respondWithError(t);
+                    responseObject.put("connected", true);
+                    Participant participant = participantMap.get(participantId);
+                    participant.setLastPing();
+                    listener.onPing(participant);
+                    JSONArray messages = participant.retrieveMessages();
+                    if (messages.length() > 0) {
+                        responseObject.put("messages", messages);
                     }
                 } else {
-                    respondWithError(t);
+                    responseObject.put("connected", false);
                 }
             }
         }
 
-        private void handleJoystick(HttpExchange t, String participantId) throws IOException {
+        private void handleGet(HttpExchange t, String[] path, JSONObject responseObject, String participantId)
+                throws IOException {
+            switch (path[1]) {
+                case "connect":
+                    handleConnect(t, participantId, responseObject);
+                    break;
+                case "disconnect":
+                    handleDisconnect(t, participantId, responseObject);
+                    break;
+                case "ping":
+                    respondWithSuccess(t, responseObject);
+                    break;
+                default:
+                    respondWithError(t, responseObject, "bad path");
+            }
+        }
+
+        private void handlePost(HttpExchange t, String[] path, JSONObject responseObject, String participantId)
+                throws IOException {
+            switch (path[1]) {
+                case "input":
+                    handleInput(t, path, participantId, responseObject);
+                    break;
+                case "ping":
+                    respondWithSuccess(t, responseObject);
+                    break;
+                case "connect":
+                    handleConnect(t, participantId, responseObject);
+                    break;
+                case "disconnect":
+                    handleDisconnect(t, participantId, responseObject);
+                    break;
+                default:
+                    respondWithError(t, responseObject, "bad path");
+            }
+        }
+
+        private void handleConnect(HttpExchange t, String participantId, JSONObject responseObject) throws IOException {
+            synchronized (participantMap) {
+                if (!participantMap.containsKey(participantId)) {
+                    if (participantMap.size() < MAX_PARTICIPANTS) {
+                        Participant connectedParticipant = new Participant(participantId);
+                        participantMap.put(participantId, connectedParticipant);
+                        listener.onConnect(connectedParticipant);
+                    }
+                }
+            }
+            respondWithSuccess(t, responseObject);
+        }
+
+        private void handleDisconnect(HttpExchange t, String participantId, JSONObject responseObject)
+                throws IOException {
+            synchronized (participantMap) {
+                if (participantMap.containsKey(participantId)) {
+                    listener.onDisconnect(participantMap.get(participantId));
+                    participantMap.remove(participantId);
+                }
+            }
+            respondWithSuccess(t, responseObject);
+        }
+
+        private void handleInput(HttpExchange t, String[] path, String participantId, JSONObject responseObject)
+                throws IOException {
+            synchronized (participantMap) {
+                if (participantMap.containsKey(participantId)) {
+                    switch (path[2]) {
+                        case "button":
+                            handleButton(t, path, participantId, responseObject);
+                            break;
+                        case "joystick":
+                            handleJoystick(t, participantId, responseObject);
+                            break;
+                        case "vote":
+                            handleVote(t, participantId, responseObject);
+                            break;
+                        default:
+                            respondWithError(t, responseObject, "bad path");
+                    }
+                } else {
+                    respondWithError(t, responseObject, "connection required");
+                }
+            }
+        }
+
+        private void handleJoystick(HttpExchange t, String participantId, JSONObject responseObject)
+                throws IOException {
             JSONObject input = new JSONObject(Util.getStringFromInputStream(t.getRequestBody()));
             if (input.has("angle") && input.has("magnitude")) {
                 try {
                     listener.onJoystickInput(participantMap.get(participantId), input.getDouble("angle"),
                             input.getDouble("magnitude"));
-                    respondWithSuccess(t);
+                    respondWithSuccess(t, responseObject);
                 } catch (JSONException e) {
-                    respondWithError(t, "invalid input");
+                    respondWithError(t, responseObject, "invalid input");
                 }
             } else {
-                respondWithError(t, "invalid input");
+                respondWithError(t, responseObject, "invalid input");
             }
         }
 
-        private void handleButton(HttpExchange t, String[] path, String participantId) throws IOException {
+        private void handleButton(HttpExchange t, String[] path, String participantId, JSONObject responseObject)
+                throws IOException {
             String button = path[3];
             switch (path[4]) {
                 case "on":
                     listener.onButtonPress(participantMap.get(participantId), button);
-                    respondWithSuccess(t);
+                    respondWithSuccess(t, responseObject);
                     break;
                 case "off":
                     listener.onButtonRelease(participantMap.get(participantId), button);
-                    respondWithSuccess(t);
+                    respondWithSuccess(t, responseObject);
                     break;
                 default:
-                    respondWithError(t);
+                    respondWithError(t, responseObject, "bad path");
             }
         }
 
-        private void handleVote(HttpExchange t, String participantId) throws IOException {
+        private void handleVote(HttpExchange t, String participantId, JSONObject responseObject) throws IOException {
             String data = Util.getStringFromInputStream(t.getRequestBody());
             JSONArray ids = new JSONArray(data);
             String[] votes = new String[ids.length()];
@@ -313,32 +312,45 @@ public class Server implements Runnable {
                 try {
                     votes[i] = ids.getString(i);
                 } catch (JSONException e) {
-                    respondWithError(t, "Player ids are not Strings");
+                    respondWithError(t, responseObject, "Player ids are not Strings");
                     return;
                 }
             }
             listener.onVote(participantMap.get(participantId), votes);
-            respondWithSuccess(t);
+            respondWithSuccess(t, responseObject);
         }
 
-        private void respondWithError(HttpExchange t) throws IOException {
-            t.sendResponseHeaders(ERROR_CODE, -1);
+        private void respondWithError(HttpExchange t, JSONObject responseObject) throws IOException {
+            respondWithError(t, responseObject, "true");
         }
 
-        private void respondWithError(HttpExchange t, String response) throws IOException {
-            t.sendResponseHeaders(ERROR_CODE, response.getBytes().length);
-            OutputStream os = t.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
+        private void respondWithError(HttpExchange t, JSONObject responseObject, Object errorMessage)
+                throws IOException {
+            responseObject.put("error", errorMessage);
+            respond(t, ERROR_CODE, responseObject);
         }
 
-        private void respondWithSuccess(HttpExchange t) throws IOException {
-            t.sendResponseHeaders(SUCCESS_CODE, -1);
+        private void respondWithSuccess(HttpExchange t, JSONObject responseObject, Object successMessage)
+                throws IOException {
+            responseObject.put("success", successMessage);
+            respond(t, SUCCESS_CODE, responseObject);
         }
 
-        private void respondWithSuccess(HttpExchange t, String response) throws IOException {
-            if (!response.substring(0, 1).equals("{")) response = "{\"result\": \""+response+"\"}";
-            t.sendResponseHeaders(SUCCESS_CODE, response.getBytes().length);
+        private void respondWithSuccess(HttpExchange t, JSONObject responseObject) throws IOException {
+            respondWithSuccess(t, responseObject, "true");
+        }
+
+        private void respond(HttpExchange t, int code, JSONObject responseObject)
+                throws IOException {
+            postProcess(responseObject, t.getRemoteAddress().getHostName());
+            if (!responseObject.has("error")) responseObject.put("error", "false");
+            if (!responseObject.has("success")) responseObject.put("success", "false");
+            if (responseObject.get("success").toString().equals("true") && responseObject.get("error").toString().equals("true")) {
+                // TODO: Figure out why this is happening
+                System.out.println(t.getRequestURI().getPath());
+            }
+            String response = responseObject.toString();
+            t.sendResponseHeaders(code, response.getBytes().length);
             OutputStream os = t.getResponseBody();
             os.write(response.getBytes());
             os.close();

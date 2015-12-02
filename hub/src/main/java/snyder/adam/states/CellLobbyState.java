@@ -85,7 +85,9 @@ public class CellLobbyState extends MasterState implements MobileListener {
     public void onVote(Participant participant, String[] votedFor) {}
 
     @Override
-    public void onConnect(Participant participant) {}
+    public void onConnect(Participant participant) {
+        FooState.addPlayer(participant);
+    }
 
     @Override
     public void onDisconnect(Participant participant) {}

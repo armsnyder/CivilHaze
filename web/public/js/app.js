@@ -2,7 +2,10 @@
  * Copyright (c) 2015 Adam Snyder. All rights reserved.
  */
 
-angular.module('comeAgain', ['ngResource', 'ngTouch']);
+angular.module('comeAgain', ['ngResource', 'ngTouch'])
+    .config(function($httpProvider) {
+        $httpProvider.interceptors.push('Interceptor');
+    });
     //.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
     //    $routeProvider
     //        .when('/', {

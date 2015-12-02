@@ -58,12 +58,15 @@ public abstract class MasterState extends BasicGameState {
      * @param entity Entity to be registered
      * @param layer Layer the entity will be rendered on. Higher layers are rendered above lower layers.
      */
-    protected void registerEntity(Entity entity, int layer) {
-        if (layersLock) {
-            entityRegisterQueue.add(new Registration(entity, layer));
-        } else {
-            finalizeRegisterEntity(entity, layer);
+    protected Entity registerEntity(Entity entity, int layer) {
+        if (entity != null) {
+            if (layersLock) {
+                entityRegisterQueue.add(new Registration(entity, layer));
+            } else {
+                finalizeRegisterEntity(entity, layer);
+            }
         }
+        return entity;
     }
 
     /**
@@ -95,7 +98,7 @@ public abstract class MasterState extends BasicGameState {
      * @param layer Layer to retrieve
      * @return Collection of Entity objects on the specified layer
      */
-    protected Collection<Entity> getEntities(int layer) {
+    public Collection<Entity> getEntities(int layer) {
         if (layer < layers.size()) {
             return new HashSet<>(layers.get(layer));
         } else {
@@ -109,7 +112,7 @@ public abstract class MasterState extends BasicGameState {
      * @param layers Array of layers to retrieve
      * @return Collection of Entity objects on any of the specified layers (concatenated)
      */
-    protected Collection<Entity> getEntities(int[] layers) {
+    public Collection<Entity> getEntities(int[] layers) {
         HashSet<Entity> result = new HashSet<>();
         for (int i : layers) {
             result.addAll(getEntities(i));
@@ -121,7 +124,7 @@ public abstract class MasterState extends BasicGameState {
      * Get all entities registered in the global update/render loop
      * @return Collection of all registered Entity objects
      */
-    protected Collection<Entity> getEntities() {
+    public Collection<Entity> getEntities() {
         Collection<Entity> allEntities = new HashSet<>();
         for (Collection<Entity> c : layers) {
             allEntities.addAll(c);

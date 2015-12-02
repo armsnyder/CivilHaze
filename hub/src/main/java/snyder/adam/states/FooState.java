@@ -15,7 +15,7 @@ import snyder.adam.Soundtrack;
 import snyder.adam.entity.Entity;
 import snyder.adam.network.MobileListener;
 import snyder.adam.network.Server;
-import snyder.adam.util.RotationalDistance;
+import snyder.adam.entity.PlayerDot;
 
 import java.util.*;
 
@@ -25,9 +25,9 @@ import java.util.*;
 public class FooState extends MasterState implements MobileListener {
 
     public static final int ID = 1;
-    private Map<Participant, PlayerDot> players = new HashMap<>();
-    private LinkedList<Color> availColors = new LinkedList<>(Arrays.asList(Color.blue, Color.green, Color.magenta,
-            Color.orange, Color.yellow, Color.cyan, Color.pink, Color.red, new Color(0.47f, 0, 0.87f),
+    private static final Map<Participant, PlayerDot> players = new HashMap<>();
+    private static final LinkedList<Color> availColors = new LinkedList<>(Arrays.asList(Color.blue, Color.green,
+            Color.magenta, Color.orange, Color.yellow, Color.cyan, Color.pink, Color.red, new Color(0.47f, 0, 0.87f),
             new Color(0.73f, 0.94f, 0.33f), new Color(0.29f, 0.84f, 0.72f), Color.lightGray,
             new Color(0.83f, 0.84f, 0.29f), new Color(0.19f, 0.42f, 0.71f), new Color(0.71f, 0.19f, 0.34f)));
     private static final Random RANDOM = new Random();
@@ -37,7 +37,9 @@ public class FooState extends MasterState implements MobileListener {
         super.enter(container, game);
         Soundtrack.gameplay.play();
         for (Participant p : Server.getInstance().getParticipants()) {
-            addPlayer(p);
+            if (registerEntity(addPlayer(p), 1) != null) {
+                players.get(p).state = this;
+            }
         }
         Server.getInstance().setListener(this);
         for (int i = 0; i < 10; i++) {
@@ -62,14 +64,11 @@ public class FooState extends MasterState implements MobileListener {
 
     @Override
     public void onJoystickInput(Participant participant, double angle, double magnitude) {
-        if (!players.containsKey(participant)) {
-            PlayerDot newPlayer = new PlayerDot();
-            newPlayer.color = availColors.pop();
-            players.put(participant, newPlayer);
+        if (players.containsKey(participant)) {
+            if (players.get(participant).speed == 0) players.get(participant).angle = angle;
+            players.get(participant).desiredAngle = angle;
+            players.get(participant).desiredMagnitude = magnitude;
         }
-        if (players.get(participant).speed == 0) players.get(participant).angle = angle;
-        players.get(participant).desiredAngle = angle;
-        players.get(participant).desiredMagnitude = magnitude;
     }
 
     @Override
@@ -77,7 +76,9 @@ public class FooState extends MasterState implements MobileListener {
 
     @Override
     public void onConnect(Participant participant) {
-        addPlayer(participant);
+        if (registerEntity(addPlayer(participant), 1) != null) {
+            players.get(participant).state = this;
+        }
     }
 
     @Override
@@ -97,16 +98,21 @@ public class FooState extends MasterState implements MobileListener {
     @Override
     public void onServerStopped() {}
 
-    private void addPlayer(Participant participant) {
-        if (availColors.size() > 0) {
-            PlayerDot newPlayer = new PlayerDot();
-            newPlayer.color = availColors.pop();
-            newPlayer.setX(50+RANDOM.nextFloat()*(Resolution.selected.WIDTH-100));
-            newPlayer.setY(50+RANDOM.nextFloat()*(Resolution.selected.HEIGHT-100));
-            players.put(participant, newPlayer);
-            registerEntity(newPlayer, 1);
-            participant.sendMessage("{\"result\": \"true\", \"color\": ["+newPlayer.color.r+","+newPlayer.color.g+","+
-                    newPlayer.color.b+"]}");
+    static PlayerDot addPlayer(Participant participant) {
+        if (players.containsKey(participant)) {
+            return players.get(participant);
+        } else {
+            if (availColors.size() > 0) {
+                PlayerDot newPlayer = new PlayerDot();
+                newPlayer.color = availColors.pop();
+                newPlayer.setX(50 + RANDOM.nextFloat() * (Resolution.selected.WIDTH - 100));
+                newPlayer.setY(50 + RANDOM.nextFloat() * (Resolution.selected.HEIGHT - 100));
+                players.put(participant, newPlayer);
+                participant.sendMessage("color", new float[]{newPlayer.color.r, newPlayer.color.g, newPlayer.color.b});
+                return newPlayer;
+            } else {
+                return null;
+            }
         }
     }
 
@@ -146,90 +152,6 @@ public class FooState extends MasterState implements MobileListener {
                     makeEdible();
                     break;
                 }
-            }
-        }
-    }
-
-    class PlayerDot extends Entity {
-        Color color = Color.black;
-        double desiredAngle = 0;
-        double desiredMagnitude = 0;
-        double speed = 0;
-        double acceleration = .01;
-        double deceleration = .006;
-        double angle = 0;
-        double angularAcceleration = 0.05;
-        int score = 0;
-        boolean winning = false;
-
-        public PlayerDot() {
-            super(0, 0, 30, 30);
-        }
-
-        @Override
-        public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
-            g.setColor(color);
-            g.fillOval(x, y, width, height);
-            if (winning) {
-                g.setColor(Color.white);
-                g.setLineWidth(2);
-                g.drawOval(x, y, width, height);
-            }
-        }
-
-        @Override
-        public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
-
-            int maxScore = 0;
-            for (Entity e : getEntities(1)) {
-                if (((PlayerDot) e).score > maxScore) {
-                    maxScore = ((PlayerDot) e).score;
-                }
-            }
-            winning = maxScore == score;
-
-            float scale = .2f;
-            if (speed > desiredMagnitude) {
-                double deltaSpeed = deceleration * i;
-                if (deltaSpeed > speed - desiredMagnitude) {
-                    speed = desiredMagnitude;
-                } else {
-                    speed -= deltaSpeed;
-                }
-            } else {
-                double deltaSpeed = acceleration*i;
-                if (deltaSpeed > desiredMagnitude - speed) {
-                    speed = desiredMagnitude;
-                } else {
-                    speed += deltaSpeed;
-                }
-            }
-            double deltaAngle = angularAcceleration * i;
-            RotationalDistance remainingAngle = new RotationalDistance(angle, desiredAngle);
-            if (remainingAngle.distance < deltaAngle) {
-                angle = desiredAngle;
-            } else {
-                if (remainingAngle.direction) {
-                    angle = angle - deltaAngle;
-                } else {
-                    angle = angle + deltaAngle;
-                }
-                if (angle > Math.PI) {
-                    angle -= 2*Math.PI;
-                }
-                if (angle < -Math.PI) {
-                    angle += 2*Math.PI;
-                }
-            }
-            double deltaX = Math.cos(angle) * speed * scale * i;
-            double deltaY = Math.sin(angle) * speed * scale * i;
-            x += deltaX;
-            y += deltaY;
-            if (y > container.getHeight()-height || y < 0) {
-                y -= deltaY;
-            }
-            if (x > container.getWidth()-width || x < 0) {
-                x -= deltaX;
             }
         }
     }
