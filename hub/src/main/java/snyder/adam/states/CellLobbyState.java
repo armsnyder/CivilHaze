@@ -13,13 +13,11 @@ import snyder.adam.Participant;
 import snyder.adam.Resolution;
 import snyder.adam.Soundtrack;
 import snyder.adam.entity.Background;
-import snyder.adam.entity.Entity;
 import snyder.adam.entity.TextArea;
 import snyder.adam.network.MobileListener;
 import snyder.adam.network.Server;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 
 
@@ -36,14 +34,14 @@ public class CellLobbyState extends MasterState implements MobileListener {
 
     @Override
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
-        layers.add(Collections.<Entity>singleton(new Background(Images.prisonBackground)));
+        registerEntity(new Background(Images.prisonBackground), 0);
         String instructionsText = "If you want to play, take out your phone and browse to: come-again.net";
         int x = Resolution.selected.WIDTH / 10;
         int y = Resolution.selected.HEIGHT / 10;
         int width = Resolution.selected.WIDTH / 10 * 8;
         TextArea instructions = new TextArea(instructionsText, x, y, width, 5, Color.white);
         instructions.alignCenter();
-        layers.add(Collections.<Entity>singleton(instructions));
+        registerEntity(instructions, 1);
     }
 
     @Override

@@ -17,8 +17,6 @@ import snyder.adam.entity.Entity;
 import snyder.adam.entity.ImageEntity;
 import snyder.adam.entity.TextArea;
 
-import java.util.Collections;
-
 
 public class DialogueState extends MasterState {
 
@@ -32,18 +30,18 @@ public class DialogueState extends MasterState {
 
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
-        layers.add(Collections.<Entity>singleton(new Background(Images.prisonBackground)));
+        registerEntity(new Background(Images.prisonBackground), 0);
         ImageEntity oldMan = new ImageEntity(Images.oldManEating);
         oldMan.setHeight(Resolution.selected.HEIGHT*7/8);
         oldMan.setY(Resolution.selected.HEIGHT/8);
         oldMan.setX((Resolution.selected.WIDTH-oldMan.getWidth())/2);
-        layers.add(Collections.<Entity>singleton(oldMan));
+        registerEntity(oldMan, 1);
         final int width = Resolution.selected.WIDTH * 9 / 10;
         final int height = Resolution.selected.HEIGHT / 3;
         final int edge = (Resolution.selected.WIDTH - width) / 2;
         final int y = Resolution.selected.HEIGHT-height-edge;
         final int cornerRadius = 50;
-        layers.add(Collections.<Entity>singleton(new Entity() {
+        registerEntity(new Entity() {
             @Override
             public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g)
                     throws SlickException {
@@ -58,13 +56,13 @@ public class DialogueState extends MasterState {
             public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
 
             }
-        }));
+        }, 2);
         TextArea dialogue = new TextArea(
                 "Hey! I'm just a placeholder for a scary moment. Pretend I'm eating your friends. The next screen " +
                         "will be a playable game. Move around using the joystick on your phone screen. Try to collect " +
                         "the white pebbles. The winning player will be encircled in white.", edge+cornerRadius,
                 y+cornerRadius, width-(2*cornerRadius), 3, Color.black);
-        layers.add(Collections.<Entity>singleton(dialogue));
+        registerEntity(dialogue, 3);
     }
 
     @Override

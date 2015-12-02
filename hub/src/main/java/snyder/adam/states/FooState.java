@@ -4,15 +4,19 @@
 
 package snyder.adam.states;
 
-import org.newdawn.slick.*;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
-import snyder.adam.*;
+import snyder.adam.Participant;
+import snyder.adam.Resolution;
+import snyder.adam.Soundtrack;
 import snyder.adam.entity.Entity;
 import snyder.adam.network.MobileListener;
 import snyder.adam.network.Server;
 import snyder.adam.util.RotationalDistance;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -48,10 +52,6 @@ public class FooState extends MasterState implements MobileListener {
 
     @Override
     public void init(GameContainer container, StateBasedGame stateBasedGame) throws SlickException {
-        layers.add(new ArrayDeque<Entity>());
-        layers.add(new ArrayDeque<Entity>());
-        layersQueue.add(new ArrayDeque<Entity>());
-        layersQueue.add(new ArrayDeque<Entity>());
     }
 
     @Override
@@ -104,7 +104,7 @@ public class FooState extends MasterState implements MobileListener {
             newPlayer.x = 50+RANDOM.nextInt(Resolution.selected.WIDTH-100);
             newPlayer.y = 50+RANDOM.nextInt(Resolution.selected.HEIGHT-100);
             players.put(participant, newPlayer);
-            layersQueue.get(1).add(newPlayer);
+            registerEntity(newPlayer, 1);
             participant.sendMessage("{\"result\": \"true\", \"color\": ["+newPlayer.color.r+","+newPlayer.color.g+","+
                     newPlayer.color.b+"]}");
         }
@@ -114,16 +114,14 @@ public class FooState extends MasterState implements MobileListener {
         availColors.push(players.get(participant).color);
         PlayerDot p = players.get(participant);
         players.remove(participant);
-        if (layers.get(1).contains(p)) {
-            layersQueue.get(1).add(p);
-        }
+        unregisterEntity(p);
     }
 
     private void makeEdible() {
         Edible e = new Edible(
                 50+RANDOM.nextInt(Resolution.selected.WIDTH-100),
                 50+RANDOM.nextInt(Resolution.selected.HEIGHT-100));
-        layersQueue.get(0).add(e);
+        registerEntity(e, 0);
     }
 
     class Edible implements Entity {
@@ -148,7 +146,7 @@ public class FooState extends MasterState implements MobileListener {
         @Override
         public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
             if (doRender) {
-                for (Entity e : layers.get(1)) {
+                for (Entity e : getEntities(1)) {
                     PlayerDot p = (PlayerDot) e;
                     if (Math.abs(p.x - x) < 20 && Math.abs(p.y - y) < 20) {
                         doRender = false;
@@ -192,7 +190,7 @@ public class FooState extends MasterState implements MobileListener {
         public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
 
             int maxScore = 0;
-            for (Entity e : layers.get(1)) {
+            for (Entity e : getEntities(1)) {
                 if (((PlayerDot) e).score > maxScore) {
                     maxScore = ((PlayerDot) e).score;
                 }

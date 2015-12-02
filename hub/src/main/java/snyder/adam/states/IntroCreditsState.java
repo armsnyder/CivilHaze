@@ -15,14 +15,14 @@ import snyder.adam.entity.FadingText;
 import snyder.adam.util.Callback;
 
 import java.util.ArrayDeque;
-import java.util.LinkedList;
+import java.util.Deque;
 
 
 public class IntroCreditsState extends MasterState {
 
     public static final int ID = 2;
     private boolean triggerNextState = false;
-    private LinkedList<FadingText> messages = new LinkedList<>();
+    private Deque<Entity> messages = new ArrayDeque<>();
 
     @Override
     public int getID() {
@@ -33,11 +33,12 @@ public class IntroCreditsState extends MasterState {
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
         messages.add(new FadingText("A game by Adam Snyder", 0, 0, 3, Color.white, false));
         messages.add(new FadingText("Art by Jae Yun", 0, 0, 3, Color.white, false));
-        for (FadingText t : messages) {
+        for (Entity e : messages) {
+            FadingText t = (FadingText) e;
             t.setX((Resolution.selected.WIDTH - t.getWidth())/2);
             t.setY((Resolution.selected.HEIGHT - t.getHeight())/2);
         }
-        layers.add(new ArrayDeque<Entity>(messages));
+        registerEntities(messages, 1);
     }
 
     @Override
@@ -63,13 +64,12 @@ public class IntroCreditsState extends MasterState {
 
     private void readyNextMessage() {
         if (messages.size() > 0) {
-            messages.getFirst().fadeIn(4000, new Callback() {
+            ((FadingText)messages.getFirst()).fadeIn(4000, new Callback() {
                 @Override
                 public void callback(Object object) {
-                    messages.getFirst().fadeOut(4000, new Callback() {
+                    ((FadingText)messages.removeFirst()).fadeOut(4000, new Callback() {
                         @Override
                         public void callback(Object object) {
-                            messages.pop();
                             readyNextMessage();
                         }
                     });

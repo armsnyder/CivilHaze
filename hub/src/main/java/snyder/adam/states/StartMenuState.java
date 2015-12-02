@@ -18,7 +18,6 @@ import snyder.adam.entity.Text;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.Collections;
 
 
 public class StartMenuState extends MasterState {
@@ -35,16 +34,16 @@ public class StartMenuState extends MasterState {
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
 
         // Add background:
-        layers.add(Collections.<Entity>singleton(new Background(Images.townBackground)));
+        registerEntity(new Background(Images.townBackground), 0);
 
         // Add title text:
         Images.text.setSize(7);
         int offset = Images.text.getWidth(" ") / 10;
-        layers.add(new ArrayDeque<Entity>(Arrays.asList(
+        registerEntities(new ArrayDeque<Entity>(Arrays.asList(
                 new Text("COME WITH ME, AGAIN", offset, offset, 7, Color.black),
                 new Text("COME WITH ME, AGAIN", 0, 0, 7, Color.red)
-        )));
-        for (Entity t : layers.get(1)) {
+        )), 1);
+        for (Entity t : getEntities(1)) {
             Text text = (Text) t;
             text.setX(text.getX() + (Resolution.selected.WIDTH-text.getWidth()) / 2);
             text.setY(text.getY() + (Resolution.selected.HEIGHT-text.getHeight()) / 5);
@@ -54,7 +53,7 @@ public class StartMenuState extends MasterState {
         FlashingText startText = new FlashingText("PRESS ANY KEY TO START", 2, 0, 0, 4, Color.red);
         startText.setX((Resolution.selected.WIDTH - startText.getWidth()) / 2);
         startText.setY((Resolution.selected.HEIGHT - startText.getHeight()) * 4 / 5);
-        layers.get(1).add(startText);
+        registerEntity(startText, 1);
     }
 
     @Override
