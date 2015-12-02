@@ -23,7 +23,7 @@ public class TextArea extends Text {
     private String[] words;
     private int alignment = -1; // -1: Left, 0: Center, 1: Right
 
-    public TextArea(String text, int x, int y, int width, int size, Color color) {
+    public TextArea(String text, float x, float y, int width, int size, Color color) {
         super(text, x, y, size, color);
         this.width = width;
         this.lines = new String[0];

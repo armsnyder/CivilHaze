@@ -23,7 +23,7 @@ public class FadingText extends Text {
     private int fade = 0;
     private Callback callback;
 
-    public FadingText(String text, int x, int y, int size, Color color, boolean startOn) {
+    public FadingText(String text, float x, float y, int size, Color color, boolean startOn) {
         super(text, x, y, size, color);
         this.alpha = startOn ? 1 : 0;
     }

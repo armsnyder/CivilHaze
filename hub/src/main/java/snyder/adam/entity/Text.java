@@ -14,17 +14,15 @@ import snyder.adam.Images;
 import snyder.adam.ScaledSpriteSheetFont;
 
 
-public class Text implements Entity {
+public class Text extends Entity {
 
     protected String text;
-    protected int x;
-    protected int y;
     protected int size;
     protected Color color;
     protected boolean isVisible = true;
     protected ScaledSpriteSheetFont font;
 
-    public Text(String text, int x, int y, int size, Color color, boolean isVisible, ScaledSpriteSheetFont font) {
+    public Text(String text, float x, float y, int size, Color color, boolean isVisible, ScaledSpriteSheetFont font) {
         this.text = text;
         this.x = x;
         this.y = y;
@@ -34,7 +32,7 @@ public class Text implements Entity {
         this.font = font;
     }
 
-    public Text(String text, int x, int y, int size, Color color) {
+    public Text(String text, float x, float y, int size, Color color) {
         this(text, x, y, size, color, true, Images.text);
     }
 
@@ -53,19 +51,11 @@ public class Text implements Entity {
         this.text = text;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getX() {
+    public float getX() {
         return x;
     }
 
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public int getY() {
+    public float getY() {
         return y;
     }
 

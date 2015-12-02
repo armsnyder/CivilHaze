@@ -101,8 +101,8 @@ public class FooState extends MasterState implements MobileListener {
         if (availColors.size() > 0) {
             PlayerDot newPlayer = new PlayerDot();
             newPlayer.color = availColors.pop();
-            newPlayer.x = 50+RANDOM.nextInt(Resolution.selected.WIDTH-100);
-            newPlayer.y = 50+RANDOM.nextInt(Resolution.selected.HEIGHT-100);
+            newPlayer.setX(50+RANDOM.nextFloat()*(Resolution.selected.WIDTH-100));
+            newPlayer.setY(50+RANDOM.nextFloat()*(Resolution.selected.HEIGHT-100));
             players.put(participant, newPlayer);
             registerEntity(newPlayer, 1);
             participant.sendMessage("{\"result\": \"true\", \"color\": ["+newPlayer.color.r+","+newPlayer.color.g+","+
@@ -124,45 +124,34 @@ public class FooState extends MasterState implements MobileListener {
         registerEntity(e, 0);
     }
 
-    class Edible implements Entity {
+    class Edible extends Entity {
 
-        int x;
-        int y;
-        boolean doRender = true;
-
-        public Edible(int x, int y) {
-            this.x = x;
-            this.y = y;
+        public Edible(float x, float y) {
+            super(x, y, 20, 20);
         }
+
 
         @Override
         public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
-            if (doRender) {
-                g.setColor(Color.white);
-                g.fillOval(x, y, 10, 10);
-            }
+            g.setColor(Color.white);
+            g.fillOval(x, y, width, height);
         }
 
         @Override
         public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
-            if (doRender) {
-                for (Entity e : getEntities(1)) {
-                    PlayerDot p = (PlayerDot) e;
-                    if (Math.abs(p.x - x) < 20 && Math.abs(p.y - y) < 20) {
-                        doRender = false;
-                        p.score++;
-                        makeEdible();
-                        break;
-                    }
+            for (Entity e : getEntities(1)) {
+                if (isOverlapping(e)) {
+                    ((PlayerDot) e).score++;
+                    unregisterEntity(this);
+                    makeEdible();
+                    break;
                 }
             }
         }
     }
 
-    class PlayerDot implements Entity {
+    class PlayerDot extends Entity {
         Color color = Color.black;
-        double x = 500;
-        double y = 500;
         double desiredAngle = 0;
         double desiredMagnitude = 0;
         double speed = 0;
@@ -170,19 +159,21 @@ public class FooState extends MasterState implements MobileListener {
         double deceleration = .006;
         double angle = 0;
         double angularAcceleration = 0.05;
-        float width = 30;
-        float height = 30;
         int score = 0;
         boolean winning = false;
+
+        public PlayerDot() {
+            super(0, 0, 30, 30);
+        }
 
         @Override
         public void render(GameContainer container, StateBasedGame stateBasedGame, Graphics g) throws SlickException {
             g.setColor(color);
-            g.fillOval((float)x, (float)y, width, height);
+            g.fillOval(x, y, width, height);
             if (winning) {
                 g.setColor(Color.white);
                 g.setLineWidth(2);
-                g.drawOval((float) x, (float) y, width, height);
+                g.drawOval(x, y, width, height);
             }
         }
 

@@ -9,12 +9,10 @@ import org.newdawn.slick.*;
 import org.newdawn.slick.state.StateBasedGame;
 import snyder.adam.Resolution;
 
-public class Background implements Entity {
+public class Background extends Entity {
 
     private Image image;
     private Color filter;
-    private float x;
-    private float y;
     private float scale;
     private Resolution resolution;
 

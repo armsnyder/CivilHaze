@@ -11,11 +11,9 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 
-public class ImageEntity implements Entity {
+public class ImageEntity extends Entity {
 
     private Image image;
-    private float x = 0;
-    private float y = 0;
     private float scale = 1;
 
     public ImageEntity(Image image) {

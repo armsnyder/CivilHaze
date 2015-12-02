@@ -19,7 +19,7 @@ public class FlashingText extends Text {
     private float speed;
     private int phase;
 
-    public FlashingText(String text, float speed, int x, int y, int size, Color color) {
+    public FlashingText(String text, float speed, float x, float y, int size, Color color) {
         super(text, x, y, size, color);
         this.speed = 1000/speed;
     }
