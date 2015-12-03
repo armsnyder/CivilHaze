@@ -94,6 +94,9 @@ angular.module('comeAgain')
         }
         Interceptor.registerDisconnectCallback(function() {
             if (pingInterval) window.clearInterval(pingInterval);
+            Interceptor.setConnected(null);
+            cachedIP = null;
+            GameResource.resource().disconnect();
         });
         return {
             connect: function() {
@@ -110,6 +113,7 @@ angular.module('comeAgain')
                             if (conResponse.connected) {
                                 cachedIP = ipResponse.result;
                                 pingInterval = window.setInterval(ping, PING_INTERVAL);
+                                Interceptor.setConnected(cachedIP);
                                 deferred.resolve(conResponse);
                             } else {
                                 tryAgain('Failed to establish connection. Retrying in '+AUTO_RESTART_DELAY+
@@ -135,9 +139,7 @@ angular.module('comeAgain')
                 return deferred.promise;
             },
             disconnect: function() {
-                cachedIP = null;
-                Interceptor.response({'connected': false});
-                if (pingInterval) window.clearInterval(pingInterval);
+                Interceptor.response({data: {'connected': false}});
             }
         };
     })
@@ -173,6 +175,7 @@ angular.module('comeAgain')
         var messageCallbacks = [];
         var disconnectCallbacks = [];
         var messageLog = [];
+        var connected; // Once connection with game server is established, this var should be set to game address
         function notifyObservers(list, object) {
             angular.forEach(list, function(callback) {
                 callback(object);
@@ -190,12 +193,14 @@ angular.module('comeAgain')
             }
         }
         function processResponse(response) {
-            if (response != null && response.hasOwnProperty('data') && response.data != null) {
-                if (response.data.hasOwnProperty('connected') || !response.data.connected) {
-                    //TODO: Consider if game server goes offline and no 'connected' key present
+            if (response != null && response.hasOwnProperty('data')) {
+                if (connected != null && ((response.data != null && response.data.hasOwnProperty('connected') &&
+                    !response.data.connected) || (response.hasOwnProperty('status') && response.status == -1 &&
+                    response.hasOwnProperty('config') && response.config.hasOwnProperty('url') &&
+                    response.config.url.indexOf(connected) > -1))) {
                     notifyObservers(disconnectCallbacks);
                 }
-                if (response.data.hasOwnProperty('messages')) {
+                if (response.data != null && response.data.hasOwnProperty('messages')) {
                     messageLog.push.apply(messageLog, response.data.messages);
                     angular.forEach(response.data.messages, function(message) {
                         notifyObservers(messageCallbacks, message);
@@ -226,6 +231,9 @@ angular.module('comeAgain')
             },
             getMessageLog: function() {
                 return messageLog;
+            },
+            setConnected: function(address) {
+                connected = address;
             }
         };
     });
