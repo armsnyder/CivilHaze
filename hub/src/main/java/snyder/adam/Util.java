@@ -4,6 +4,7 @@
 
 package snyder.adam;
 
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -64,7 +65,7 @@ public class Util {
         return sb.toString();
     }
 
-    public static String executePost(String url, String data) throws IOException {
+    public static String executePost(String url, JSONObject data) throws IOException {
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
@@ -76,7 +77,7 @@ public class Util {
         // Send post request
         con.setDoOutput(true);
         DataOutputStream wr = new DataOutputStream(con.getOutputStream()); //TODO: Handle connection refused
-        wr.writeBytes(data);
+        wr.writeBytes(data.toString());
         wr.flush();
         wr.close();
 

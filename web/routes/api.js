@@ -16,7 +16,7 @@ var connectionPool = mysql.createPool(secret.mysqlConnection);
 // GET
 
 exports.getPrivate = function(req, res) {
-    var publicIP = getIP(req);
+    var publicIP = ip.toLong(getIP(req));
     connectionPool.getConnection(function(err, connection) {
         if (err) {
             console.error('CONNECTION error: ', err);
@@ -26,9 +26,8 @@ exports.getPrivate = function(req, res) {
                 error: err.code
             });
         } else {
-            //connection.query("SELECT * FROM games WHERE public_ip='"+publicIP+"' ORDER BY last_updated DESC LIMIT 1",
-            connection.query("SELECT * FROM games ORDER BY id DESC LIMIT 1",
-                function(err, rows) {
+            connection.query("SELECT * FROM games WHERE public_ip_min<"+publicIP+" AND public_ip_max>"+publicIP+
+                " ORDER BY last_updated DESC LIMIT 1", function(err, rows) {
                     if (err) {
                         console.error(err);
                         res.statusCode = 500;
@@ -48,7 +47,7 @@ exports.getPrivate = function(req, res) {
                         } else {
                             //TODO: Account for multiple valid games on a single subnet
                             res.json({
-                                result: rows[0]['private_ip'],
+                                result: ip.fromLong(rows[0]['private_ip']),
                                 error: ''
                             })
                         }
@@ -63,7 +62,11 @@ exports.getPrivate = function(req, res) {
 
 exports.postPrivate = function(req, res) {
     var publicIP = getIP(req);
-    var privateIP = req.params['privateIP'];
+    var mask = req.body.hasOwnProperty('mask') ? ip.fromPrefixLen(req.body.mask) : "255.255.255.0";
+    var subnetInfo = ip.subnet(publicIP, mask);
+    var minIP = ip.toLong(subnetInfo.firstAddress);
+    var maxIP = ip.toLong(subnetInfo.lastAddress);
+    var privateIP = ip.toLong(req.params['privateIP']);
     if (privateIP) {
         connectionPool.getConnection(function(err, connection) {
             if (err) {
@@ -74,8 +77,8 @@ exports.postPrivate = function(req, res) {
                     error: err.code
                 });
             } else {
-                connection.query("INSERT INTO games (public_ip, private_ip) VALUES ('"+publicIP+"', '"+privateIP+"')",
-                    function(err) {
+                connection.query("INSERT INTO games (public_ip_min, public_ip_max, private_ip) VALUES ("+minIP+", "+
+                    maxIP+", "+privateIP+")", function(err) {
                         if (err) {
                             console.error(err);
                             res.statusCode = 500;
@@ -124,7 +127,6 @@ function getIP(req) {
     if (ips_str) {
         return ips_str.split(',')[0].trim();
     } else {
-        //return req.connection.remoteAddress;
-        return 'default';
+        return req.connection.remoteAddress;
     }
 }

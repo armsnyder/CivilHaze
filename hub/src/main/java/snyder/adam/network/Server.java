@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.*;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -116,7 +117,7 @@ public class Server implements Runnable {
         String url = "http://come-again.net/api/ip/private/"+getPrivateIP();
 //        String url = "http://localhost:3000/api/ip/private/"+getPrivateIP();
         try {
-            String response = Util.executePost(url, "");
+            String response = Util.executePost(url, new JSONObject(Collections.singletonMap("mask", getSubnetMask())));
             JSONObject o = new JSONObject(response);
             if (!o.has("error") || ((String)o.get("error")).length() > 0) {
                 signalError("Failed to update routing table");
@@ -132,7 +133,18 @@ public class Server implements Runnable {
     }
 
     private static String getPrivateIP() throws UnknownHostException {
-        return InetAddress.getLocalHost().getHostAddress();
+        return Inet4Address.getLocalHost().getHostAddress();
+    }
+
+    private static short getSubnetMask() throws UnknownHostException, SocketException {
+        InetAddress localHost = Inet4Address.getLocalHost();
+        NetworkInterface networkInterface = NetworkInterface.getByInetAddress(localHost);
+        for (InterfaceAddress address : networkInterface.getInterfaceAddresses()) {
+            if (!address.getAddress().toString().contains(":")) { // Only support IPv4
+                return address.getNetworkPrefixLength();
+            }
+        }
+        return 24;
     }
 
     class InputHandler implements HttpHandler {
