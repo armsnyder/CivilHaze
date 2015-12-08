@@ -5,7 +5,7 @@
 'use strict';
 
 var fs = require('fs');
-var mysql = require('mysql');
+var mysql = require('mysql2');
 var ip = require('ip');
 var secret = getConfig('../secret.json');
 
@@ -77,8 +77,8 @@ exports.postPrivate = function(req, res) {
                     error: err.code
                 });
             } else {
-                connection.query("INSERT INTO games (public_ip_min, public_ip_max, private_ip) VALUES ("+minIP+", "+
-                    maxIP+", "+privateIP+")", function(err) {
+                connection.execute("INSERT INTO games (public_ip_min, public_ip_max, private_ip) VALUES (?, ?, ?)",
+                    [minIP, maxIP, privateIP], function(err) {
                         if (err) {
                             console.error(err);
                             res.statusCode = 500;
