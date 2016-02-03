@@ -31,7 +31,7 @@ public class FooState extends MasterState implements MobileListener {
             new Color(0.83f, 0.84f, 0.29f), new Color(0.19f, 0.42f, 0.71f), new Color(0.71f, 0.19f, 0.34f)));
     private static final Random RANDOM = new Random();
     private int countCloudSpawns = 0;
-    private static final int[] CLOUD_SPAWN_INTERVAL = {1000, 2000};
+    private static final int[] CLOUD_SPAWN_INTERVAL = {3000, 8000};
     private static final int CLOUD_SPAWN_CAP = 10;  //TODO: Increase when through testing
     private boolean isDisplaying = false;
     public static int score = 0;
@@ -158,10 +158,22 @@ public class FooState extends MasterState implements MobileListener {
     }
 
     @Override
-    public void onButtonPress(Participant participant, String button) {}
+    public void onButtonPress(Participant participant, String button) {
+        if (button.equals("spin")) {
+            if (players.containsKey(participant)) {
+                players.get(participant).isSpinning = true;
+            }
+        }
+    }
 
     @Override
-    public void onButtonRelease(Participant participant, String button) {}
+    public void onButtonRelease(Participant participant, String button) {
+        if (button.equals("spin")) {
+            if (players.containsKey(participant)) {
+                players.get(participant).isSpinning = false;
+            }
+        }
+    }
 
     @Override
     public void onJoystickInput(Participant participant, double angle, double magnitude) {
@@ -223,7 +235,7 @@ public class FooState extends MasterState implements MobileListener {
         }
     }
 
-    private void removePlayer(Participant participant) {
+    static void removePlayer(Participant participant) {
         availColors.push(players.get(participant).color);
         PlayerDot p = players.get(participant);
         players.remove(participant);

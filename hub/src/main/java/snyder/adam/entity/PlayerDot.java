@@ -19,13 +19,12 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.geom.Circle;
-import org.newdawn.slick.geom.Point;
-import org.newdawn.slick.geom.Shape;
-import org.newdawn.slick.geom.Transform;
+import org.newdawn.slick.geom.*;
 import org.newdawn.slick.state.StateBasedGame;
 import snyder.adam.ComeAgain;
+import snyder.adam.Resolution;
 import snyder.adam.Sounds;
+import snyder.adam.Util;
 import snyder.adam.states.FooState;
 import snyder.adam.states.MasterState;
 import snyder.adam.util.RotationalDistance;
@@ -46,13 +45,14 @@ public class PlayerDot extends Entity {
     public int score = 0;
     public boolean winning = false;
     public FooState state = null;
-    public int remainingPower = 0;
-    public static int maxPower = 200;
+    public float remainingPower = 0;
+    public static float maxPower = 200;
     private boolean isAlive = true;
     private static final int SCORE_UPDATE_INTERVAL = 1000;
     private static final int SCORE_INCREMENT = 10;
     private float alpha = 1;
     private boolean scoreLoopRunning = false;
+    public boolean isSpinning = false;
 
     public PlayerDot() {
         super(0, 0, 30, 30);
@@ -73,6 +73,14 @@ public class PlayerDot extends Entity {
             float percentPower = (float) remainingPower / maxPower;
             float margin = (1 - percentPower) * width / 2;
             g.drawOval(x + margin, y + margin, width * percentPower, height * percentPower);
+        }
+        if (isSpinning) {
+            g.setColor(Color.white);
+            for (int i=0; i<1+ Util.RANDOM.nextInt(3); i++) {
+                float plusRadius = Util.RANDOM.nextFloat()*20;
+                g.drawArc(x-plusRadius, y-plusRadius, width+plusRadius*2, height+plusRadius*2,
+                        Util.RANDOM.nextFloat()*360, Util.RANDOM.nextFloat()*360);
+            }
         }
     }
 
@@ -154,18 +162,37 @@ public class PlayerDot extends Entity {
         if (overlapCount >= 2) {
             kill();
         }
+        if (isSpinning) {
+            subtractPower(i/10f);
+            if (remainingPower <= 0) {
+                isSpinning = false;
+                return;
+            }
+            if (state != null && isAlive) {
+                for (Entity e : state.getEntities(3)) {
+                    float ex = e.shape.getCenterX();
+                    float ey = e.shape.getCenterY();
+                    double distance = Math.sqrt((ex-x+width/2)*(ex-x+width/2)+(ey-y+height/2)*(ey-y+height/2));
+                    double direction = Util.angle(x+width/2, y+height/2, ex, ey)*180/Math.PI;
+                    Vector2f component = new Vector2f(i*(float)(.001f/(distance/Resolution.selected.HEIGHT)), 0);
+                    component.setTheta(direction);
+//                    System.out.println(component.length());
+                    ((Cloud)e).addVelocity(component);
+                }
+            }
+        }
     }
 
     public void setState(FooState state) {
         this.state = state;
     }
 
-    public void addPower(int power) {
+    public void addPower(float power) {
         remainingPower += power;
         if (remainingPower > maxPower) remainingPower = maxPower;
     }
 
-    public void subtractPower(int power) {
+    public void subtractPower(float power) {
         remainingPower -= power;
         if (remainingPower < 0) remainingPower = 0;
     }

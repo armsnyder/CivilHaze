@@ -8,10 +8,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
-import snyder.adam.Images;
-import snyder.adam.Participant;
-import snyder.adam.Resolution;
-import snyder.adam.Soundtrack;
+import snyder.adam.*;
 import snyder.adam.entity.Background;
 import snyder.adam.entity.TextArea;
 import snyder.adam.network.MobileListener;
@@ -78,10 +75,14 @@ public class CellLobbyState extends MasterState implements MobileListener {
     }
 
     @Override
-    public void onButtonPress(Participant participant, String button) {}
+    public void onButtonPress(Participant participant, String button) {
+        if (ComeAgain.debug) System.out.println(button+" down");
+    }
 
     @Override
-    public void onButtonRelease(Participant participant, String button) {}
+    public void onButtonRelease(Participant participant, String button) {
+        if (ComeAgain.debug) System.out.println(button+" up");
+    }
 
     @Override
     public void onJoystickInput(Participant participant, double angle, double magnitude) {}
@@ -95,7 +96,9 @@ public class CellLobbyState extends MasterState implements MobileListener {
     }
 
     @Override
-    public void onDisconnect(Participant participant) {}
+    public void onDisconnect(Participant participant) {
+        FooState.removePlayer(participant);
+    }
 
     @Override
     public void onPing(Participant participant) {}
