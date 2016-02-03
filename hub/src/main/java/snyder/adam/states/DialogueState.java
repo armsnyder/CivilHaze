@@ -17,11 +17,14 @@ import snyder.adam.entity.Entity;
 import snyder.adam.entity.ImageEntity;
 import snyder.adam.entity.TextArea;
 
+import java.util.Date;
+
 
 public class DialogueState extends MasterState {
 
     public static final int ID = 5;
     private boolean nextState = false;
+    private long timeAtReset;
 
     @Override
     public int getID() {
@@ -76,6 +79,7 @@ public class DialogueState extends MasterState {
     @Override
     public void enter(GameContainer container, StateBasedGame game) throws SlickException {
         super.enter(container, game);
+        timeAtReset = new Date().getTime();
         Soundtrack.ohNo.play();
         Soundtrack.ohNo.setVolume(0.8f);
     }
@@ -83,6 +87,8 @@ public class DialogueState extends MasterState {
     @Override
     public void keyPressed(int key, char c) {
         super.keyPressed(key, c);
-        nextState = true;
+        if (c == ' ' && new Date().getTime()-timeAtReset > 2000){
+            nextState = true;
+        }
     }
 }

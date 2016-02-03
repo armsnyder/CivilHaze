@@ -43,7 +43,7 @@ public class Text extends Entity {
 
     @Override
     public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
-
+        font.setSize(size);
     }
 
     public void setText(String text) {

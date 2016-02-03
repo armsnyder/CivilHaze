@@ -18,6 +18,7 @@ import snyder.adam.network.MobileListener;
 import snyder.adam.network.Server;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 
 
@@ -26,6 +27,7 @@ public class CellLobbyState extends MasterState implements MobileListener {
     public static final int ID = 4;
     private boolean nextState = false;
     private boolean serverReady = false;
+    private long timeAtReset;
 
     @Override
     public int getID() {
@@ -55,6 +57,7 @@ public class CellLobbyState extends MasterState implements MobileListener {
     @Override
     public void enter(GameContainer container, StateBasedGame game) throws SlickException {
         super.enter(container, game);
+        timeAtReset = new Date().getTime();
         Soundtrack.cell.play();
         Server s = null;
         try {
@@ -69,7 +72,9 @@ public class CellLobbyState extends MasterState implements MobileListener {
     @Override
     public void keyPressed(int key, char c) {
         super.keyPressed(key, c);
-        nextState = true;
+        if (c == ' ' && new Date().getTime()-timeAtReset > 2000){
+            nextState = true;
+        }
     }
 
     @Override
