@@ -8,12 +8,10 @@ import org.newdawn.slick.*;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.util.FontUtils;
 import snyder.adam.*;
-import snyder.adam.entity.Cloud;
-import snyder.adam.entity.Entity;
-import snyder.adam.entity.Text;
+import snyder.adam.entity.*;
 import snyder.adam.network.MobileListener;
 import snyder.adam.network.Server;
-import snyder.adam.entity.PlayerDot;
+import snyder.adam.util.Callback;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -31,13 +29,20 @@ public class FooState extends MasterState implements MobileListener {
             new Color(0.83f, 0.84f, 0.29f), new Color(0.19f, 0.42f, 0.71f), new Color(0.71f, 0.19f, 0.34f)));
     private static final Random RANDOM = new Random();
     private int countCloudSpawns = 0;
-    private static final int[] CLOUD_SPAWN_INTERVAL = {3000, 8000};
-    private static final int CLOUD_SPAWN_CAP = 10;  //TODO: Increase when through testing
+    private static final int[] CLOUD_SPAWN_INTERVAL = {1000, 8000};
+    private static final int CLOUD_SPAWN_CAP = 30;
     private boolean isDisplaying = false;
     public static int score = 0;
     private static boolean gameOver = false;
     private Text gameOverText;
     private long timeAtReset;
+    private FadingText[] helpText;
+    private static final String[] helpStrings = {
+            "Use the left joystick to move",
+            "Avoid layers of 2 or more clouds",
+            "Find power stones to replenish energy",
+            "Press the right button to spin",
+            "Spinning pushes clouds away but uses energy"};
 
     @Override
     public void enter(GameContainer container, StateBasedGame game) throws SlickException {
@@ -51,6 +56,14 @@ public class FooState extends MasterState implements MobileListener {
                 players.get(p).state = this;
             }
         }
+        helpText = new FadingText[helpStrings.length];
+        for (int i=0; i<helpStrings.length; i++) {
+            helpText[i] = new FadingText(helpStrings[i], 0, 0, 3, Color.white, false);
+            helpText[i].setX((Resolution.selected.WIDTH-helpText[i].getWidth())/2);
+            helpText[i].setY((Resolution.selected.HEIGHT-helpText[i].getHeight())/2);
+            registerEntity(helpText[i], 4);
+        }
+        readyMessage(0);
         registerEntity(new Text("", 0, 0, 2, Color.yellow) {
             @Override
             public void update(GameContainer container, StateBasedGame stateBasedGame, int i) throws SlickException {
@@ -96,6 +109,31 @@ public class FooState extends MasterState implements MobileListener {
         gameOverText.setY(offsetY);
     }
 
+    private void readyMessage(final int i) {
+        if (i < helpText.length) {
+            helpText[i].fadeIn(2000, new Callback() {
+                @Override
+                public void callback(Object object) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(4000);
+                            } catch (InterruptedException ignored) {
+                            }
+                            helpText[i].fadeOut(2000, new Callback() {
+                                @Override
+                                public void callback(Object object) {
+                                    readyMessage(i + 1);
+                                }
+                            });
+                        }
+                    }).start();
+                }
+            });
+        }
+    }
+
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         super.update(container, game, delta);
@@ -130,7 +168,7 @@ public class FooState extends MasterState implements MobileListener {
     @Override
     public void keyPressed(int key, char c) {
         super.keyPressed(key, c);
-        if (gameOver) {
+        if (c==' ') {
             reset();
         }
     }

@@ -61,9 +61,9 @@ public class DialogueState extends MasterState {
             }
         }, 2);
         TextArea dialogue = new TextArea(
-                "Hey! I'm just a placeholder for a scary moment. Pretend I'm eating your friends. The next screen " +
-                        "will be a playable game. Move around using the joystick on your phone screen. Try to collect " +
-                        "the white pebbles. The winning player will be encircled in white.", edge+cornerRadius,
+                "Hey kids! So you want to get out of this cell? I can help you out, but you'd better be careful " +
+                        "outside. If you get lost in the fog, you'll never be found again! So, look out for each " +
+                        "other...", edge+cornerRadius,
                 y+cornerRadius, width-(2*cornerRadius), 3, Color.black);
         registerEntity(dialogue, 3);
     }
