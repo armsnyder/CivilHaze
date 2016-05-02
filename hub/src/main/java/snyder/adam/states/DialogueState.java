@@ -17,11 +17,14 @@ import snyder.adam.entity.Entity;
 import snyder.adam.entity.ImageEntity;
 import snyder.adam.entity.TextArea;
 
+import java.util.Date;
+
 
 public class DialogueState extends MasterState {
 
     public static final int ID = 5;
     private boolean nextState = false;
+    private long timeAtReset;
 
     @Override
     public int getID() {
@@ -58,9 +61,9 @@ public class DialogueState extends MasterState {
             }
         }, 2);
         TextArea dialogue = new TextArea(
-                "Hey! I'm just a placeholder for a scary moment. Pretend I'm eating your friends. The next screen " +
-                        "will be a playable game. Move around using the joystick on your phone screen. Try to collect " +
-                        "the white pebbles. The winning player will be encircled in white.", edge+cornerRadius,
+                "Hey kids! So you want to get out of this cell? I can help you out, but you'd better be careful " +
+                        "outside. If you get lost in the fog, you'll never be found again! So, look out for each " +
+                        "other...", edge+cornerRadius,
                 y+cornerRadius, width-(2*cornerRadius), 3, Color.black);
         registerEntity(dialogue, 3);
     }
@@ -76,6 +79,7 @@ public class DialogueState extends MasterState {
     @Override
     public void enter(GameContainer container, StateBasedGame game) throws SlickException {
         super.enter(container, game);
+        timeAtReset = new Date().getTime();
         Soundtrack.ohNo.play();
         Soundtrack.ohNo.setVolume(0.8f);
     }
@@ -83,6 +87,8 @@ public class DialogueState extends MasterState {
     @Override
     public void keyPressed(int key, char c) {
         super.keyPressed(key, c);
-        nextState = true;
+        if (c == ' ' && new Date().getTime()-timeAtReset > 2000){
+            nextState = true;
+        }
     }
 }

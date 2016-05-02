@@ -58,7 +58,7 @@ public abstract class MasterState extends BasicGameState {
      * @param entity Entity to be registered
      * @param layer Layer the entity will be rendered on. Higher layers are rendered above lower layers.
      */
-    protected Entity registerEntity(Entity entity, int layer) {
+    public Entity registerEntity(Entity entity, int layer) {
         if (entity != null) {
             if (layersLock) {
                 entityRegisterQueue.add(new Registration(entity, layer));
@@ -74,7 +74,7 @@ public abstract class MasterState extends BasicGameState {
      * @param entities Entities to be registered
      * @param layer Layer the entities will be rendered on. Higher layers are rendered above lower layers.
      */
-    protected void registerEntities(Collection<Entity> entities, int layer) {
+    public void registerEntities(Collection<Entity> entities, int layer) {
         for (Entity e : entities) {
             registerEntity(e, layer);
         }
@@ -84,7 +84,7 @@ public abstract class MasterState extends BasicGameState {
      * Remove an entity from the global update/render loop
      * @param entity Entity to be removed
      */
-    protected void unregisterEntity(Entity entity) {
+    public void unregisterEntity(Entity entity) {
         if (layersLock) {
             entityRegisterQueue.add(new Registration(entity));
         } else {

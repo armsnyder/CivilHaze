@@ -1,10 +1,4 @@
 div(ng-correct-rotation="desiredRotation" class="fullscreen" ng-style="{background: color}")
     canvas(ng-joystick num-angles="64" num-magnitude="8" height="1000" width="1000" ng-style="{background: color}")
-    //div(id="rightSide")
-    //    button(ng-click="buttonOn('Main_Theme')") Main Theme
-    //    br
-    //    button(ng-click="buttonOn('cell')") Trapped In Cell
-    //    br
-    //    button(ng-click="buttonOn('happy_man')") Happy Man
-    //    br
-    //    button(ng-click="buttonOn('dark_dabble')") Scary Man
+    div(id="rightSide")
+        div(id="innerButton" ng-button)

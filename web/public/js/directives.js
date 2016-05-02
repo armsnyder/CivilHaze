@@ -115,6 +115,20 @@ angular.module('comeAgain')
             }
         }
     })
+    .directive('ngButton', function(ControllerService) {
+        return {
+            link: function (scope, element) {
+                element.on('touchstart', function() {
+                    element.css('background', '#FFF');
+                    ControllerService.buttonOn("spin");
+                });
+                element.on('touchend', function() {
+                    element.css('background', '#777');
+                    ControllerService.buttonOff("spin");
+                });
+            }
+        }
+    })
     .directive('ngCorrectRotation', function() {
         return {
             transclude: true,

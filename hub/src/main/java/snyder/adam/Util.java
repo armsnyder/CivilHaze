@@ -95,4 +95,8 @@ public class Util {
 
         return response.toString();
     }
+
+    public static double angle(float x, float y, float x1, float y1) {
+        return Math.atan((y1-y)/(x1-x)) + (x1 < x ? Math.PI : 0);
+    }
 }

@@ -30,6 +30,8 @@ public class ComeAgain extends StateBasedGame {
     /** VSync enable */
     private static final boolean V_SYNC = true;
 
+    public static int highScore = 0;
+
     public ComeAgain() {
         super(TITLE);
     }
@@ -44,6 +46,7 @@ public class ComeAgain extends StateBasedGame {
 
         Images.load();
         Soundtrack.load();
+        Sounds.load();
 
         this.addState(new IntroCreditsState());
         this.addState(new StartMenuState());
