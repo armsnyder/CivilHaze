@@ -2,7 +2,7 @@
  * Copyright (c) 2015 Adam Snyder. All rights reserved.
  */
 
-package snyder.adam;
+package com.armsnyder.civilhaze;
 
 import org.junit.Test;
 import org.w3c.dom.Document;

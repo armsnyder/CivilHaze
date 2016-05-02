@@ -13,7 +13,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package snyder.adam;
+package com.armsnyder.civilhaze;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
