@@ -4,6 +4,8 @@
 
 'use strict';
 
+var ROOT = "http://civilhaze.com";
+
 angular.module('comeAgain')
     .factory('MainService', function() {
         var observerCallbacks = [];
@@ -144,7 +146,6 @@ angular.module('comeAgain')
         };
     })
     .factory('RouteResource', function($resource) {
-        var ROOT = "http://come-again.net";
         //var ROOT = "http://localhost:3000";
         return $resource(ROOT+'/api/ip/private', {}, {query: {method: 'GET'}});
     })
