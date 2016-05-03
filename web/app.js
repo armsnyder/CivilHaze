@@ -10,6 +10,10 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var stylus = require('stylus');
 var nib = require('nib');
+var Game = require('./Game.js');
+var ip = require('ip');
+var mongoose = require('mongoose');
+
 var app = express();
 
 // Configuration
@@ -64,47 +68,45 @@ app.use('/lib', express.static(path.join(__dirname, 'node_modules')));
 
 // API
 
+mongoose.createConnection('mongodb://localhost/civilhaze', { server: { poolSize: 4 }});
+mongoose.connection.on('connected', function() {
+    console.log('Mongoose connection open.');
+});
+mongoose.connection.on('error', function(err) {
+    console.log('Mongoose connection error: '+err);
+});
+
 app.get('/api/ip/private', function(req, res) {
     var publicIP = ip.toLong(getIP(req));
-    connectionPool.getConnection(function(err, connection) {
-        if (err) {
-            console.error('CONNECTION error: ', err);
-            res.statusCode = 503;
-            res.json({
-                result: 'error',
-                error: err.code
-            });
-        } else {
-            connection.query("SELECT * FROM games WHERE public_ip_min<"+publicIP+" AND public_ip_max>"+publicIP+
-                " ORDER BY last_updated DESC LIMIT 1", function(err, rows) {
-                if (err) {
-                    console.error(err);
-                    res.statusCode = 500;
-                    res.json({
-                        result: 'error',
-                        error: err.code
-                    })
-                } else {
-                    if (rows.length == 0) {
-                        err = 'Could not find requested IP';
-                        console.error(err);
-                        res.statusCode = 409;
-                        res.json({
-                            result: 'error',
-                            error: err
-                        })
-                    } else {
-                        //TODO: Account for multiple valid games on a single subnet
-                        res.json({
-                            result: ip.fromLong(rows[0]['private_ip']),
-                            error: ''
-                        })
-                    }
-                }
-                connection.release();
-            });
-        }
-    });
+    Game.findOne({
+            public_ip_min: {$lt: publicIP},
+            public_ip_max: {$gt: publicIP}
+        })
+        .sort({last_updated: -1})
+        .exec(function(err, game) {
+            if (err) {
+                console.error(err);
+                res.statusCode = 500;
+                res.json({
+                    result: 'error',
+                    error: err.code
+                });
+            } else if (!game) {
+                err = 'Could not find requested IP';
+                console.error(err);
+                res.statusCode = 409;
+                res.json({
+                    result: 'error',
+                    error: err
+                });
+            } else {
+                //TODO: Account for multiple valid games on a single subnet
+                res.json({
+                    result: ip.fromLong(game.private_ip),
+                    error: ''
+                });
+            }
+        });
 });
 
 app.post('/api/ip/private/:privateIP', function(req, res) {
@@ -115,7 +117,13 @@ app.post('/api/ip/private/:privateIP', function(req, res) {
     var maxIP = ip.toLong(subnetInfo.lastAddress);
     var privateIP = ip.toLong(req.params['privateIP']);
     if (privateIP) {
-        connectionPool.getConnection(function(err, connection) {
+        mongoose.connect('mongodb://localhost/civilhaze');
+        var newGame = Game({
+            public_ip_min: minIP,
+            public_ip_max: maxIP,
+            private_ip: privateIP
+        });
+        newGame.save(function(err) {
             if (err) {
                 console.error('CONNECTION error: ', err);
                 res.statusCode = 503;
@@ -123,24 +131,6 @@ app.post('/api/ip/private/:privateIP', function(req, res) {
                     result: 'error',
                     error: err.code
                 });
-            } else {
-                connection.execute("INSERT INTO games (public_ip_min, public_ip_max, private_ip) VALUES (?, ?, ?)",
-                    [minIP, maxIP, privateIP], function(err) {
-                        if (err) {
-                            console.error(err);
-                            res.statusCode = 500;
-                            res.json({
-                                result: 'error',
-                                error: err.code
-                            })
-                        } else {
-                            res.json({
-                                result: 'success',
-                                error: ''
-                            })
-                        }
-                        connection.release();
-                    });
             }
         });
     } else {
@@ -202,6 +192,18 @@ if (!module.parent) {
     app.listen(80, function() {
         console.log('Civil Haze backend server listening on port 80.');
     });
+}
+
+
+// Utility functions
+
+function getIP(req) {
+    var ips_str = req.headers['x-forwarded-for'];
+    if (ips_str) {
+        return ips_str.split(',')[0].trim();
+    } else {
+        return req.connection.remoteAddress;
+    }
 }
 
 module.exports = app;
