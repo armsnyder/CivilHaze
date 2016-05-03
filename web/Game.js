@@ -12,6 +12,6 @@ gameSchema.pre('save', function(next) {
     next();
 });
 
-var Game = new mongoose.model('Game', gameSchema);
+var Game = mongoose.model('Game', gameSchema);
 
 module.exports = Game;
