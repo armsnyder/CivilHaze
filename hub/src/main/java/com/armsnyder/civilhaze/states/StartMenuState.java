@@ -40,8 +40,8 @@ public class StartMenuState extends MasterState {
         // Add title text:
         Images.text.setSize(7);
         int offset = Images.text.getWidth(" ") / 10;
-        registerEntity(new Text("COME WITH ME, AGAIN", offset, offset, 7, Color.black), 1);
-        registerEntity(new Text("COME WITH ME, AGAIN", 0, 0, 7, Color.red), 2);
+        registerEntity(new Text("CIVIL HAZE", offset, offset, 7, Color.black), 1);
+        registerEntity(new Text("CIVIL HAZE", 0, 0, 7, Color.red), 2);
         for (Entity t : getEntities(new int[]{1, 2})) {
             Text text = (Text) t;
             text.setX(text.getX() + (Resolution.selected.WIDTH-text.getWidth()) / 2);

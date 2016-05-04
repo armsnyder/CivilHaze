@@ -132,6 +132,11 @@ app.post('/api/ip/private/:privateIP', function(req, res) {
                     result: 'error',
                     error: err.code
                 });
+            } else {
+                res.json({
+                    result: 'success',
+                    error: ''
+                });
             }
         });
     } else {

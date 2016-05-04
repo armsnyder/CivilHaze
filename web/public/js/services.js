@@ -151,7 +151,7 @@ angular.module('comeAgain')
     })
     .factory('GameResource', function($resource) {
         var root;
-        var PORT = 8000;
+        var PORT = 8000; // TODO: get the port from the database
         return {
             setRoot: function(ip) {
                 root = ip;

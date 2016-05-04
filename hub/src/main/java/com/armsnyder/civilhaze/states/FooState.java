@@ -6,14 +6,12 @@ package com.armsnyder.civilhaze.states;
 
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.StateBasedGame;
-import org.newdawn.slick.util.FontUtils;
 import com.armsnyder.civilhaze.*;
 import com.armsnyder.civilhaze.entity.*;
 import com.armsnyder.civilhaze.network.MobileListener;
 import com.armsnyder.civilhaze.network.Server;
 import com.armsnyder.civilhaze.util.Callback;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -70,7 +68,7 @@ public class FooState extends MasterState implements MobileListener {
                 super.update(container, stateBasedGame, i);
                 setX(font.getWidth(" "));
                 setY(font.getWidth(" "));
-                setText(String.format("HIGH SCORE: %d", ComeAgain.highScore));
+                setText(String.format("HIGH SCORE: %d", CivilHaze.highScore));
             }
         }, 4);
         registerEntity(new Text("", 0, 0, 2, Color.magenta) {
@@ -186,7 +184,7 @@ public class FooState extends MasterState implements MobileListener {
             registerEntity(p, 2);
         }
         Soundtrack.gameplay.playFrom(0);
-        if (score > ComeAgain.highScore) ComeAgain.highScore = score;
+        if (score > CivilHaze.highScore) CivilHaze.highScore = score;
         score = 0;
         gameOver = false;
     }

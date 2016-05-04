@@ -13,10 +13,10 @@ import java.awt.*;
 /**
  * @author Adam Snyder
  */
-public class ComeAgain extends StateBasedGame {
+public class CivilHaze extends StateBasedGame {
 
     /** Screen title */
-    private static final String TITLE = "Come With Me, Again";
+    private static final String TITLE = "Civil Haze";
 
     /** Frame rate */
     private static final int FPS = 60;
@@ -32,7 +32,7 @@ public class ComeAgain extends StateBasedGame {
 
     public static int highScore = 0;
 
-    public ComeAgain() {
+    public CivilHaze() {
         super(TITLE);
     }
 
@@ -74,8 +74,8 @@ public class ComeAgain extends StateBasedGame {
                 Resolution.getMatchingFullScreenResolution(displayWidth, displayHeight);
 
         Resolution.select(defaultResolution);
-        Game game = isStatic ? new ComeAgain() :
-                new ScalableGame(new ComeAgain(), defaultResolution.WIDTH, defaultResolution.HEIGHT);
+        Game game = isStatic ? new CivilHaze() :
+                new ScalableGame(new CivilHaze(), defaultResolution.WIDTH, defaultResolution.HEIGHT);
         AppGameContainer app = new AppGameContainer(game, defaultResolution.WIDTH, defaultResolution.HEIGHT, false);
         if (windowed) {
             app.setDisplayMode(defaultResolution.WIDTH, defaultResolution.HEIGHT, false);

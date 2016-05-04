@@ -41,6 +41,7 @@ public class Server implements Runnable {
         this.participantMap = participantMap;
         this.listener = listener;
         try {
+//            server = HttpServer.create(new InetSocketAddress(8000), 0);
             server = HttpServer.create(new InetSocketAddress(InetAddress.getLocalHost(), port), 0);
         } catch (BindException e) {
             listener.onServerFatalError("Address already in use");
@@ -114,8 +115,8 @@ public class Server implements Runnable {
     }
 
     private void updateIpTable() throws IOException {
-        String url = "http://come-again.net/api/ip/private/"+getPrivateIP();
-//        String url = "http://localhost:3000/api/ip/private/"+getPrivateIP();
+        // TODO: Notify table of port as well
+        String url = "http://civilhaze.com/api/ip/private/"+getPrivateIP();
         try {
             String response = Util.executePost(url, new JSONObject(Collections.singletonMap("mask", getSubnetMask())));
             JSONObject o = new JSONObject(response);
@@ -360,11 +361,11 @@ public class Server implements Runnable {
             postProcess(responseObject, t.getRemoteAddress().getHostName());
             if (!responseObject.has("error")) responseObject.put("error", "false");
             if (!responseObject.has("success")) responseObject.put("success", "false");
-            if (!responseObject.get("success").toString().equals("false") && !responseObject.get("error").toString().equals("false")) {
+//            if (!responseObject.get("success").toString().equals("false") && !responseObject.get("error").toString().equals("false")) {
                 // TODO: Figure out why this is happening
-                System.out.println(t.getRequestURI().getPath());
-                System.out.println(responseObject.toString());
-            }
+//                System.out.println(t.getRequestURI().getPath());
+//                System.out.println(responseObject.toString());
+//            }
             String response = responseObject.toString();
             t.sendResponseHeaders(code, response.getBytes().length);
             OutputStream os = t.getResponseBody();

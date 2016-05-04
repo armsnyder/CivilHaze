@@ -21,16 +21,11 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.*;
 import org.newdawn.slick.state.StateBasedGame;
-import com.armsnyder.civilhaze.ComeAgain;
 import com.armsnyder.civilhaze.Resolution;
 import com.armsnyder.civilhaze.Sounds;
 import com.armsnyder.civilhaze.Util;
 import com.armsnyder.civilhaze.states.FooState;
-import com.armsnyder.civilhaze.states.MasterState;
 import com.armsnyder.civilhaze.util.RotationalDistance;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class PlayerDot extends Entity {

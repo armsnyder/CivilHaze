@@ -20,7 +20,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<main.class>com.armsnyder.civilhaze.ComeAgain</main.class>
+		<main.class>com.armsnyder.civilhaze.CivilHaze</main.class>
 	</properties>
 
 	<dependencies>

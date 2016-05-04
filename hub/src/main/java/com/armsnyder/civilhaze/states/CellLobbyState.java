@@ -4,6 +4,7 @@
 
 package com.armsnyder.civilhaze.states;
 
+import org.lwjgl.Sys;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
@@ -34,7 +35,7 @@ public class CellLobbyState extends MasterState implements MobileListener {
     @Override
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
         registerEntity(new Background(Images.prisonBackground), 0);
-        String instructionsText = "If you want to play, take out your phone and browse to: come-again.net";
+        String instructionsText = "If you want to play, take out your phone and browse to: civilhaze.com";
         int x = Resolution.selected.WIDTH / 10;
         int y = Resolution.selected.HEIGHT / 10;
         int width = Resolution.selected.WIDTH / 10 * 8;
@@ -76,12 +77,12 @@ public class CellLobbyState extends MasterState implements MobileListener {
 
     @Override
     public void onButtonPress(Participant participant, String button) {
-        if (ComeAgain.debug) System.out.println(button+" down");
+        if (CivilHaze.debug) System.out.println(button+" down");
     }
 
     @Override
     public void onButtonRelease(Participant participant, String button) {
-        if (ComeAgain.debug) System.out.println(button+" up");
+        if (CivilHaze.debug) System.out.println(button+" up");
     }
 
     @Override
@@ -111,6 +112,7 @@ public class CellLobbyState extends MasterState implements MobileListener {
 
     @Override
     public void onServerFatalError(String description) {
+        System.out.println(description);
         serverReady = false;
     }
 

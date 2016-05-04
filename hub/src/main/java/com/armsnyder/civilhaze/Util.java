@@ -71,6 +71,7 @@ public class Util {
 
         //add reuqest header
         con.setRequestMethod("POST");
+        con.setRequestProperty("User-Agent", "Mozilla/5.0");
         con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
         con.setRequestProperty("Content-Type", "application/json");
 
@@ -81,7 +82,7 @@ public class Util {
         wr.flush();
         wr.close();
 
-//        int responseCode = con.getResponseCode();
+        int responseCode = con.getResponseCode();
 
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()));
