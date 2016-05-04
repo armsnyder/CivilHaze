@@ -68,8 +68,8 @@ app.use('/lib', express.static(path.join(__dirname, 'node_modules')));
 
 // API
 
-mongoose.createConnection('mongodb://localhost/civilhaze', { server: { poolSize: 4 }});
-mongoose.connection.on('connected', function() {
+mongoose.connect('mongodb://localhost/civilhaze');
+mongoose.connection.once('open', function() {
     console.log('Mongoose connection open.');
 });
 mongoose.connection.on('error', function(err) {
@@ -78,11 +78,12 @@ mongoose.connection.on('error', function(err) {
 
 app.get('/api/ip/private', function(req, res) {
     var publicIP = ip.toLong(getIP(req));
-    Game.findOne({
+    Game.find({
             public_ip_min: {$lt: publicIP},
             public_ip_max: {$gt: publicIP}
         })
         .sort({last_updated: -1})
+        .limit(1)
         .exec(function(err, game) {
             if (err) {
                 console.error(err);
@@ -91,7 +92,7 @@ app.get('/api/ip/private', function(req, res) {
                     result: 'error',
                     error: err.code
                 });
-            } else if (!game) {
+            } else if (!game || game.length == 0) {
                 err = 'Could not find requested IP';
                 console.error(err);
                 res.statusCode = 409;
@@ -102,7 +103,7 @@ app.get('/api/ip/private', function(req, res) {
             } else {
                 //TODO: Account for multiple valid games on a single subnet
                 res.json({
-                    result: ip.fromLong(game.private_ip),
+                    result: ip.fromLong(game[0].private_ip),
                     error: ''
                 });
             }
