@@ -117,6 +117,7 @@ public class FooState extends MasterState implements MobileListener {
     }
 
     private void readyMessage(final int i) {
+        if (gameOver) return;
         if (i < helpText.length) {
             helpText[i].fadeIn(2000, new Callback() {
                 @Override

@@ -4,6 +4,7 @@
 
 package com.armsnyder.civilhaze.network;
 
+import com.armsnyder.civilhaze.CivilHaze;
 import com.armsnyder.civilhaze.Participant;
 import com.armsnyder.civilhaze.Util;
 import com.sun.net.httpserver.Headers;
@@ -118,10 +119,14 @@ public class Server implements Runnable {
         // TODO: Notify table of port as well
         String url = "http://civilhaze.com/api/ip/private/"+getPrivateIP();
         try {
-            String response = Util.executePost(url, new JSONObject(Collections.singletonMap("mask", getSubnetMask())));
+            JSONObject params = new JSONObject();
+            params.put("mask", getSubnetMask());
+            params.put("version", CivilHaze.VERSION);
+            String response = Util.executePost(url, params);
             JSONObject o = new JSONObject(response);
             if (!o.has("error") || ((String)o.get("error")).length() > 0) {
-                signalError("Failed to update routing table");
+                if ("error".toLowerCase().contains("version")) signalError("Outdated game version");
+                else signalError("Failed to update routing table");
             }
         } catch (IOException e) {
             signalError("Failed to update routing table");

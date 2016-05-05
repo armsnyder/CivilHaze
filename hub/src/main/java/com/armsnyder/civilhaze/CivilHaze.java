@@ -20,6 +20,8 @@ public class CivilHaze extends StateBasedGame {
     /** Screen title */
     private static final String TITLE = "Civil Haze";
 
+    public static final String VERSION = "2.0.0";
+
     /** Frame rate */
     private static final int FPS = 60;
 
