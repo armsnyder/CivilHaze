@@ -13,6 +13,7 @@ var nib = require('nib');
 var Game = require('./Game.js');
 var ip = require('ip');
 var mongoose = require('mongoose');
+var device = require('device');
 
 var app = express();
 
@@ -158,7 +159,8 @@ app.get('/partials/:name', function(req, res) {
 // Redirect all others to main app
 
 app.get('*', function(req, res) {
-    res.render('index');
+    if (device(req.get('User-Agent')).is('desktop')) res.redirect('http://armsnyder.com/civil-haze');
+    else res.render('index');
 });
 
 // catch 404 and forward to error handler
