@@ -4,16 +4,17 @@
 
 package com.armsnyder.civilhaze.states;
 
-import org.lwjgl.Sys;
+import com.armsnyder.civilhaze.CivilHaze;
+import com.armsnyder.civilhaze.Participant;
+import com.armsnyder.civilhaze.Resolution;
+import com.armsnyder.civilhaze.Soundtrack;
+import com.armsnyder.civilhaze.entity.TextArea;
+import com.armsnyder.civilhaze.network.MobileListener;
+import com.armsnyder.civilhaze.network.Server;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
-import com.armsnyder.civilhaze.*;
-import com.armsnyder.civilhaze.entity.Background;
-import com.armsnyder.civilhaze.entity.TextArea;
-import com.armsnyder.civilhaze.network.MobileListener;
-import com.armsnyder.civilhaze.network.Server;
 
 import java.io.IOException;
 import java.util.Date;
@@ -26,6 +27,7 @@ public class CellLobbyState extends MasterState implements MobileListener {
     private boolean nextState = false;
     private boolean serverReady = false;
     private long timeAtReset;
+    private TextArea status = null;
 
     @Override
     public int getID() {
@@ -34,21 +36,29 @@ public class CellLobbyState extends MasterState implements MobileListener {
 
     @Override
     public void init(GameContainer gameContainer, StateBasedGame stateBasedGame) throws SlickException {
-        registerEntity(new Background(Images.prisonBackground), 0);
         String instructionsText = "If you want to play, take out your phone and browse to: civilhaze.com";
+        String instructionsText2 = "Make sure you are on the same Wi-Fi network";
+        String instructionsText3 = "Press SPACE to continue";
         int x = Resolution.selected.WIDTH / 10;
         int y = Resolution.selected.HEIGHT / 10;
         int width = Resolution.selected.WIDTH / 10 * 8;
         TextArea instructions = new TextArea(instructionsText, x, y, width, 5, Color.white);
+        TextArea instructions2 = new TextArea(instructionsText2, x, y+Resolution.selected.HEIGHT/2, width, 4,
+                Color.white);
+        status = new TextArea(instructionsText3, x, y+Resolution.selected.HEIGHT*3/4, width, 4, Color.white);
         instructions.alignCenter();
+        instructions2.alignCenter();
+        status.alignCenter();
         registerEntity(instructions, 1);
+        registerEntity(instructions2, 1);
+        registerEntity(status, 1);
     }
 
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         super.update(container, game, delta);
         if (nextState && serverReady) {
-            game.enterState(DialogueState.ID);
+            game.enterState(FooState.ID);
         }
     }
 
@@ -112,7 +122,8 @@ public class CellLobbyState extends MasterState implements MobileListener {
 
     @Override
     public void onServerFatalError(String description) {
-        System.out.println(description);
+        status.setText("Error: "+description);
+        status.setColor(Color.red);
         serverReady = false;
     }
 

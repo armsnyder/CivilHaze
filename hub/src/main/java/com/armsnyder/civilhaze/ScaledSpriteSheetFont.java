@@ -65,8 +65,16 @@ public class ScaledSpriteSheetFont extends SpriteSheetFont {
         return (int) (super.getWidth(text) * getScale());
     }
 
+    public int getWidth(String text, int size) {
+        return (int) (super.getWidth(text) * SCALE * Resolution.selected.WIDTH * size / charWidth);
+    }
+
     public int getLineHeight() {
         return (int) (super.getLineHeight() * getScale());
+    }
+
+    public int getLineHeight(int size) {
+        return (int) (super.getLineHeight() * SCALE * Resolution.selected.WIDTH * size / charWidth);
     }
 
     public void setSize(int size) {

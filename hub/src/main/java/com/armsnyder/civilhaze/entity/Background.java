@@ -5,9 +5,9 @@
 package com.armsnyder.civilhaze.entity;
 
 
+import com.armsnyder.civilhaze.Resolution;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.StateBasedGame;
-import com.armsnyder.civilhaze.Resolution;
 
 public class Background extends Entity {
 

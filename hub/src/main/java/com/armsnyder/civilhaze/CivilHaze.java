@@ -4,9 +4,11 @@
 
 package com.armsnyder.civilhaze;
 
+import com.armsnyder.civilhaze.states.CellLobbyState;
+import com.armsnyder.civilhaze.states.FooState;
+import com.armsnyder.civilhaze.states.StartMenuState;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.StateBasedGame;
-import com.armsnyder.civilhaze.states.*;
 
 import java.awt.*;
 
@@ -51,7 +53,6 @@ public class CivilHaze extends StateBasedGame {
         this.addState(new StartMenuState());
         this.addState(new CellLobbyState());
         this.addState(new FooState());
-        this.addState(new DialogueState());
 
         this.enterState(StartMenuState.ID);
     }

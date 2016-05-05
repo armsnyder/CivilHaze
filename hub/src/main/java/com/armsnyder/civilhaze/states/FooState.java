@@ -4,13 +4,16 @@
 
 package com.armsnyder.civilhaze.states;
 
-import org.newdawn.slick.*;
-import org.newdawn.slick.state.StateBasedGame;
 import com.armsnyder.civilhaze.*;
 import com.armsnyder.civilhaze.entity.*;
 import com.armsnyder.civilhaze.network.MobileListener;
 import com.armsnyder.civilhaze.network.Server;
 import com.armsnyder.civilhaze.util.Callback;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.state.StateBasedGame;
 
 import java.util.*;
 
@@ -33,6 +36,7 @@ public class FooState extends MasterState implements MobileListener {
     public static int score = 0;
     private static boolean gameOver = false;
     private Text gameOverText;
+    private Text gameOverSubText;
     private long timeAtReset;
     private FadingText[] helpText;
     private static final String[] helpStrings = {
@@ -102,9 +106,14 @@ public class FooState extends MasterState implements MobileListener {
         }.start();
         gameOverText = new Text("GAME OVER", 0, 0, 5, Color.red);
         int offsetX = (Resolution.selected.WIDTH-gameOverText.getWidth())/2;
-        int offsetY = (Resolution.selected.HEIGHT-gameOverText.getHeight())/2;
+        int offsetY = (int)(Resolution.selected.HEIGHT-gameOverText.getHeight()*2)/2;
         gameOverText.setX(offsetX);
         gameOverText.setY(offsetY);
+        gameOverSubText = new Text("Press SPACE to play again", 0, 0, 4, Color.white);
+        offsetX = (Resolution.selected.WIDTH-gameOverSubText.getWidth())/2;
+        offsetY = (int)(gameOverText.getY() + gameOverText.getHeight() * 2);
+        gameOverSubText.setX(offsetX);
+        gameOverSubText.setY(offsetY);
     }
 
     private void readyMessage(final int i) {
@@ -116,7 +125,7 @@ public class FooState extends MasterState implements MobileListener {
                         @Override
                         public void run() {
                             try {
-                                Thread.sleep(4000);
+                                Thread.sleep(6000);
                             } catch (InterruptedException ignored) {
                             }
                             helpText[i].fadeOut(2000, new Callback() {
@@ -145,6 +154,7 @@ public class FooState extends MasterState implements MobileListener {
         super.render(container, game, g);
         if (gameOver) {
             gameOverText.render(container, game, g);
+            gameOverSubText.render(container, game, g);
         }
     }
 

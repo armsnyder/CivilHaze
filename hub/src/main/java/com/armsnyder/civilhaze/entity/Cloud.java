@@ -15,6 +15,9 @@
 
 package com.armsnyder.civilhaze.entity;
 
+import com.armsnyder.civilhaze.Resolution;
+import com.armsnyder.civilhaze.Util;
+import com.armsnyder.civilhaze.states.MasterState;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -22,9 +25,6 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
-import com.armsnyder.civilhaze.Resolution;
-import com.armsnyder.civilhaze.Util;
-import com.armsnyder.civilhaze.states.MasterState;
 
 /**
  * Cloud (baddie)

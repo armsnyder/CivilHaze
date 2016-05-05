@@ -4,6 +4,8 @@
 
 package com.armsnyder.civilhaze.network;
 
+import com.armsnyder.civilhaze.Participant;
+import com.armsnyder.civilhaze.Util;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -11,8 +13,6 @@ import com.sun.net.httpserver.HttpServer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.armsnyder.civilhaze.Participant;
-import com.armsnyder.civilhaze.Util;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -123,7 +123,7 @@ public class Server implements Runnable {
             if (!o.has("error") || ((String)o.get("error")).length() > 0) {
                 signalError("Failed to update routing table");
             }
-        } catch (SocketException e) {
+        } catch (IOException e) {
             signalError("Failed to update routing table");
         }
     }

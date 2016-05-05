@@ -15,17 +15,18 @@
 
 package com.armsnyder.civilhaze.entity;
 
-import org.newdawn.slick.Color;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.SlickException;
-import org.newdawn.slick.geom.*;
-import org.newdawn.slick.state.StateBasedGame;
 import com.armsnyder.civilhaze.Resolution;
 import com.armsnyder.civilhaze.Sounds;
 import com.armsnyder.civilhaze.Util;
 import com.armsnyder.civilhaze.states.FooState;
 import com.armsnyder.civilhaze.util.RotationalDistance;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Circle;
+import org.newdawn.slick.geom.Vector2f;
+import org.newdawn.slick.state.StateBasedGame;
 
 
 public class PlayerDot extends Entity {

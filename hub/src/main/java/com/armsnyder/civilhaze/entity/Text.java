@@ -5,13 +5,13 @@
 package com.armsnyder.civilhaze.entity;
 
 
+import com.armsnyder.civilhaze.Images;
+import com.armsnyder.civilhaze.ScaledSpriteSheetFont;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
-import com.armsnyder.civilhaze.Images;
-import com.armsnyder.civilhaze.ScaledSpriteSheetFont;
 
 
 public class Text extends Entity {
