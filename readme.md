@@ -7,7 +7,8 @@ buttons that they use to move and control their on-screen characters.
 
 ## Starting The Game
 You can play Civil Haze right now! It is incredibly easy to set up.
-1. [Download the latest release](https://github.com/armsnyder/CivilHaze/releases/latest) 
+
+1. [Download the latest release](https://github.com/armsnyder/CivilHaze/releases/latest)
 (requires [Java](https://java.com/download))
 2. Run the game
 3. Have all players open a web browser on their smart phones and navigate to [civilhaze.com](http://civilhaze.com)
@@ -75,6 +76,6 @@ character they are in the game. From then on, any time a player presses or relea
 web application, the web application sends a HTTP request to the game instance containing data about the player ID and 
 input.
 
-### License
+## License
 
 Copyright (C) 2016 Adam Snyder. All rights reserved.
