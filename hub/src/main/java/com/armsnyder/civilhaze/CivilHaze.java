@@ -48,13 +48,12 @@ public class CivilHaze extends StateBasedGame {
         Soundtrack.load();
         Sounds.load();
 
-        this.addState(new IntroCreditsState());
         this.addState(new StartMenuState());
         this.addState(new CellLobbyState());
         this.addState(new FooState());
         this.addState(new DialogueState());
 
-        this.enterState(IntroCreditsState.ID);
+        this.enterState(StartMenuState.ID);
     }
 
     public static void main(String[] args) throws SlickException {

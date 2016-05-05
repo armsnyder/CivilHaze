@@ -1,5 +1,5 @@
 /*
- * Come Again is an interactive art piece in which participants perform a series of reckless prison breaks.
+ * Civil Haze is an interactive art piece in which participants perform a series of reckless prison breaks.
  * Copyright (C) 2015  Adam Snyder
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -19,7 +19,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Sound;
 
 /**
- * Created by flame on 2/3/16.
+ * Created by Adam Snyder on 2/3/16.
  */
 public class Sounds {
 
