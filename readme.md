@@ -16,7 +16,9 @@ You can play Civil Haze right now! It is incredibly easy to set up.
 
 ## How It Works
 There are three modules that make up the Civil Haze code base: the game application, the central server, and the mobile 
-controller.
+controller, which communicate behind-the-scenes to make for a smooth user experience.
+
+![Diagram](http://armsnyder.com/wp-content/uploads/2016/05/diagram.gif)
 
 ### The Game Application
 The game application is the downloadable release that users run on their machine in order to play the game. It houses 
